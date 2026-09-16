@@ -1,4 +1,4 @@
-package fi.metropolia.riikaka.demo.entity;
+package fi.metropolia.riikaka.webstore.entity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package fi.metropolia.riikaka.demo;
+package fi.metropolia.riikaka.webstore;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

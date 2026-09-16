@@ -1,13 +1,13 @@
-package fi.metropolia.riikaka.demo;
+package fi.metropolia.riikaka.webstore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication {
+public class WebstoreApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(WebstoreApplication.class, args);
 	}
 
 }

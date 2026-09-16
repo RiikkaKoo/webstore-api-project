@@ -1,4 +1,4 @@
-package fi.metropolia.riikaka.demo;
+package fi.metropolia.riikaka.webstore;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

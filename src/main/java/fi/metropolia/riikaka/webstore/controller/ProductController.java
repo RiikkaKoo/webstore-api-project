@@ -1,7 +1,7 @@
-package fi.metropolia.riikaka.demo.controller;
+package fi.metropolia.riikaka.webstore.controller;
 
-import fi.metropolia.riikaka.demo.entity.Product;
-import fi.metropolia.riikaka.demo.entity.ProductRepository;
+import fi.metropolia.riikaka.webstore.entity.Product;
+import fi.metropolia.riikaka.webstore.entity.ProductRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

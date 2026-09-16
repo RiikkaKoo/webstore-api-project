@@ -1,4 +1,4 @@
-package fi.metropolia.riikaka.demo.entity;
+package fi.metropolia.riikaka.webstore.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
