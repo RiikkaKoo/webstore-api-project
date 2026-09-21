@@ -2,25 +2,22 @@ package fi.metropolia.riikaka.webstore.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name="products")
-public class Product {
+@Table(name="removed_products")
+public class RemovedProduct {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String name;
     private String description;
     private float price;
-    private int stock_quantity;
-
-    @ManyToOne
-    private Category category;
-
     @ManyToOne
     private Supplier supplier;
+    private LocalDateTime removal_date;
 
-    public Product() {
+    public RemovedProduct() {
     }
 
     public int getId() {
@@ -55,27 +52,19 @@ public class Product {
         this.price = price;
     }
 
-    public int getStock_quantity() {
-        return stock_quantity;
-    }
-
-    public void setStock_quantity(int stock_quantity) {
-        this.stock_quantity = stock_quantity;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
     public Supplier getSupplier() {
         return supplier;
     }
 
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
+    }
+
+    public LocalDateTime getRemoval_date() {
+        return removal_date;
+    }
+
+    public void setRemoval_date(LocalDateTime removal_date) {
+        this.removal_date = removal_date;
     }
 }

@@ -1,19 +1,21 @@
 package fi.metropolia.riikaka.webstore.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="customers")
 public class Customer {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String first_name;
     private String last_name;
     private String email;
     private String phone;
+
+    public Customer() {
+    }
 
     public int getId() {
         return id;

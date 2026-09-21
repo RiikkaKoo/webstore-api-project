@@ -1,0 +1,83 @@
+### customer put test
+PUT http://127.0.0.1:8090/api/customers/999
+Content-Type: application/json
+
+{
+  "first_name": "NewName"
+}
+
+
+### customer post test
+POST http://127.0.0.1:8090/api/customers
+Content-Type: application/json
+
+{
+  "first_name": "Test",
+  "last_name": "CustomerTwo",
+  "email": "testcustomertwo@email.com",
+  "phone": "02012345671122"
+}
+
+### customer delete fail test
+DELETE http://127.0.0.1:8090/api/customers/999999999
+Content-Type: application/json
+
+#----------------------------------------------------------------------------------------------#
+
+### product delete test
+DELETE http://127.0.0.1:8090/api/products/793
+Content-Type: application/json
+
+#----------------------------------------------------------------------------------------------#
+
+### orderitem post test
+POST http://127.0.0.1:8090/api/orders/70/items/add/60
+Content-Type: application/json
+
+{
+  "unit_price": 730.52,
+  "quantity": 8
+}
+
+### orderitem post test
+DELETE http://127.0.0.1:8090/api/orders/70/items/remove/60
+Content-Type: application/json
+
+#----------------------------------------------------------------------------------------------#
+
+### supplieraddress put test
+PUT http://127.0.0.1:8090/api/suppliers/13/address
+Content-Type: application/json
+
+{
+  "street_address": "Uusikatu 1",
+  "city": "Uusikaupunki",
+  "postal_code": "00115",
+  "country": "Maa"
+}
+
+### supplier post test
+POST http://127.0.0.1:8090/api/suppliers
+Content-Type: application/json
+
+{
+  "contact_name": "Tessa Testaaja",
+  "email": "testaajat@email.com",
+  "name": "Testaajat Oy",
+  "phone": "02013456789"
+}
+
+### supplieraddress post test
+POST http://127.0.0.1:8090/api/suppliers/101/address
+Content-Type: application/json
+
+{
+  "street_address": "Testaajankatu 1",
+  "city": "Testaajienkaupunki",
+  "postal_code": "13131",
+  "country": "TestaajienMaa"
+}
+
+### supplieraddress delete test
+DELETE http://127.0.0.1:8090/api/suppliers/101/address
+Content-Type: application/json
