@@ -2,11 +2,9 @@ package fi.metropolia.riikaka.webstore.controller;
 
 import fi.metropolia.riikaka.webstore.entity.Category;
 import fi.metropolia.riikaka.webstore.entity.Product;
-import fi.metropolia.riikaka.webstore.entity.RemovedProduct;
 import fi.metropolia.riikaka.webstore.entity.Supplier;
 import fi.metropolia.riikaka.webstore.repository.CategoryRepository;
 import fi.metropolia.riikaka.webstore.repository.ProductRepository;
-import fi.metropolia.riikaka.webstore.repository.RemovedProductRepository;
 import fi.metropolia.riikaka.webstore.repository.SupplierRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +17,12 @@ import java.util.List;
 public class ProductController {
 
     private final ProductRepository productRepository;
-    private final RemovedProductRepository removedProductRepository;
     private final CategoryRepository categoryRepository;
     private final SupplierRepository supplierRepository;
 
-    public ProductController(ProductRepository productRepository, RemovedProductRepository removedProductRepository,
-                             CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
+    public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository,
+                             SupplierRepository supplierRepository) {
         this.productRepository = productRepository;
-        this.removedProductRepository = removedProductRepository;
         this.categoryRepository = categoryRepository;
         this.supplierRepository = supplierRepository;
 
@@ -49,21 +45,13 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/removed")
-    public ResponseEntity<List<RemovedProduct>> getRemovedProducts(){
-
-        List<RemovedProduct> products = removedProductRepository.findAll();
+    @GetMapping("/archived")
+    public ResponseEntity<List<Product>> getRemovedProducts(){
+        List<Product> products = productRepository.findAllByArchived(true);
         if (products.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(products);
-    }
-
-    @GetMapping("/removed/{id}")
-    public ResponseEntity<RemovedProduct> getRemovedProductById(@PathVariable Integer id){
-        return removedProductRepository.findById(id)
-                .map(product -> ResponseEntity.ok(product))
-                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -101,15 +89,17 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Integer id){
         try {
             if (productRepository.existsById(id)) {
-                productRepository.deleteById(id);
-                return ResponseEntity.ok("Product with ID " + id +" was successfully deleted");
+                Product product = productRepository.getReferenceById(id);
+                product.setArchived(true);
+                productRepository.save(product);
+                return ResponseEntity.ok("SOFT DELETE: Product with ID " + id +" was successfully archived");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Product with ID " + id + " was not found");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Could not delete product");
+                    .body("Could not archive product");
         }
     }
 }

@@ -2,11 +2,11 @@ package fi.metropolia.riikaka.webstore.controller;
 
 import fi.metropolia.riikaka.webstore.entity.Customer;
 import fi.metropolia.riikaka.webstore.entity.CustomerAddress;
-import fi.metropolia.riikaka.webstore.entity.SupplierAddress;
+import fi.metropolia.riikaka.webstore.entity.Order;
 import fi.metropolia.riikaka.webstore.repository.CustomerAddressRepository;
 import fi.metropolia.riikaka.webstore.repository.CustomerRepository;
+import fi.metropolia.riikaka.webstore.repository.OrderRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +18,13 @@ public class CustomerController {
 
     private final CustomerRepository customerRepository;
     private final CustomerAddressRepository customerAddressRepository;
+    private final OrderRepository orderRepository;
 
-    public CustomerController(CustomerRepository customerRepository, CustomerAddressRepository customerAddressRepository) {
+    public CustomerController(CustomerRepository customerRepository, CustomerAddressRepository customerAddressRepository,
+                              OrderRepository orderRepository) {
         this.customerRepository = customerRepository;
         this.customerAddressRepository = customerAddressRepository;
+        this.orderRepository = orderRepository;
     }
 
     // Get all Customers
@@ -43,7 +46,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/address")
-    public ResponseEntity<List<CustomerAddress>> getSupplierAddress(@PathVariable Integer id){
+    public ResponseEntity<List<CustomerAddress>> getCustomerAddress(@PathVariable Integer id){
         List<CustomerAddress> addresses = customerRepository.getReferenceById(id).getCustomer_address();
         if (addresses != null) {
             return ResponseEntity.ok(addresses);
@@ -52,15 +55,26 @@ public class CustomerController {
         }
     }
 
-    /*
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Customer> getByCustomerEmail(@PathVariable String email){
-        return repository.findByEmail(email)
-                .map(customer -> ResponseEntity.ok(customer))
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{id}/orders")
+    public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable Integer id){
+        List<Order> orders = orderRepository.findByCustomer(customerRepository.getReferenceById(id));
+        if (orders != null) {
+            return ResponseEntity.ok(orders);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-*/
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Customer> getByCustomerEmail(@PathVariable String email){
+        Customer customer = customerRepository.findByEmail(email);
+        if (customer != null) {
+            return ResponseEntity.ok(customer);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<Customer>postNewCustomer(@RequestBody Customer newCustomer){
         try {

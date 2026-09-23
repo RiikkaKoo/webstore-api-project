@@ -3,6 +3,7 @@ package fi.metropolia.riikaka.webstore.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="orders")

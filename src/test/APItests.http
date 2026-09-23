@@ -24,9 +24,34 @@ Content-Type: application/json
 
 #----------------------------------------------------------------------------------------------#
 
+### product put test
+PUT http://localhost:8090/api/products/77
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "",
+  "stock_quantity": -60,
+  "price": 33.44,
+  "archived": false,
+  "category": {
+    "id": 3
+  },
+  "supplier": {
+    "id": 6
+  }
+}
+
 ### product delete test
 DELETE http://127.0.0.1:8090/api/products/793
 Content-Type: application/json
+
+#----------------------------------------------------------------------------------------------#
+
+### order delete test
+DELETE http://127.0.0.1:8090/api/orders/555
+Content-Type: application/json
+
 
 #----------------------------------------------------------------------------------------------#
 

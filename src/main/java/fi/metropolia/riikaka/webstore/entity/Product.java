@@ -13,6 +13,7 @@ public class Product {
     private String description;
     private float price;
     private int stock_quantity;
+    private boolean archived;
 
     @ManyToOne(cascade = {
             CascadeType.PERSIST,
@@ -71,6 +72,14 @@ public class Product {
 
     public void setStock_quantity(int stock_quantity) {
         this.stock_quantity = stock_quantity;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 
     public Category getCategory() {
