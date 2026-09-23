@@ -74,6 +74,12 @@ public class CategoryController {
     public ResponseEntity<String> deleteCategory(@PathVariable Integer id){
         try {
             if (categoryRepository.existsById(id)) {
+                Category category = categoryRepository.getReferenceById(id);
+                List<Product> products = productRepository.findAllByCategory(category);
+                for (Product p : products) {
+                    p.setCategory(null);
+                    productRepository.save(p);
+                }
                 categoryRepository.deleteById(id);
                 return ResponseEntity.ok("Category with ID " + id +" was successfully deleted");
             } else {

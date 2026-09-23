@@ -14,10 +14,20 @@ public class Product {
     private float price;
     private int stock_quantity;
 
-    @ManyToOne
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH},
+            fetch = FetchType.LAZY)
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH},
+            fetch = FetchType.LAZY)
     private Supplier supplier;
 
     public Product() {

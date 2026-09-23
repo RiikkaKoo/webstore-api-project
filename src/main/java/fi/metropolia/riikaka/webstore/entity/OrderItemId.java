@@ -1,5 +1,7 @@
 package fi.metropolia.riikaka.webstore.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.ManyToOne;
 
@@ -8,9 +10,15 @@ import java.io.Serializable;
 @Embeddable
 public class OrderItemId implements Serializable {
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Order order;
-    @ManyToOne
+
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.REFRESH,
+            CascadeType.MERGE,
+            CascadeType.DETACH
+    })
     private Product product;
 
     public OrderItemId() {

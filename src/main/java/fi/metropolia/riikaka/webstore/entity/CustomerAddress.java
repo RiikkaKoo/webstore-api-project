@@ -10,8 +10,6 @@ public class CustomerAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    private Customer customer;
     private String street_address;
     private String postal_code;
     private String city;
@@ -26,14 +24,6 @@ public class CustomerAddress {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
     }
 
     public String getStreet_address() {

@@ -2,6 +2,8 @@ package fi.metropolia.riikaka.webstore.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name="customers")
 public class Customer {
@@ -13,6 +15,10 @@ public class Customer {
     private String last_name;
     private String email;
     private String phone;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private List<CustomerAddress> customer_address;
 
     public Customer() {
     }
@@ -55,5 +61,13 @@ public class Customer {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public List<CustomerAddress> getCustomer_address() {
+        return customer_address;
+    }
+
+    public void setCustomer_address(List<CustomerAddress> customer_address) {
+        this.customer_address = customer_address;
     }
 }

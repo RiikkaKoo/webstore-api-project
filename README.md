@@ -38,3 +38,17 @@ http://localhost:8090/api
 | `DELETE` | `/products/{id}`         | Poistaa tuotteen valikoimasta                          |
 
 ## TIETOKANNAN OMINAISUUDET
+
+### Indeksit
+
+### Transaktiot
+
+### Näkymät
+
+### Liipaisimet
+
+### Tapahtumat
+
+### Temporaaliominaisuudet
+
+### Tietoturva

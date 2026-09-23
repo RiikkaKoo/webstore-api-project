@@ -1,9 +1,13 @@
 package fi.metropolia.riikaka.webstore.controller;
 
+import fi.metropolia.riikaka.webstore.entity.Category;
 import fi.metropolia.riikaka.webstore.entity.Product;
 import fi.metropolia.riikaka.webstore.entity.RemovedProduct;
+import fi.metropolia.riikaka.webstore.entity.Supplier;
+import fi.metropolia.riikaka.webstore.repository.CategoryRepository;
 import fi.metropolia.riikaka.webstore.repository.ProductRepository;
 import fi.metropolia.riikaka.webstore.repository.RemovedProductRepository;
+import fi.metropolia.riikaka.webstore.repository.SupplierRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +20,16 @@ public class ProductController {
 
     private final ProductRepository productRepository;
     private final RemovedProductRepository removedProductRepository;
+    private final CategoryRepository categoryRepository;
+    private final SupplierRepository supplierRepository;
 
-    public ProductController(ProductRepository productRepository, RemovedProductRepository removedProductRepository) {
+    public ProductController(ProductRepository productRepository, RemovedProductRepository removedProductRepository,
+                             CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
         this.productRepository = productRepository;
         this.removedProductRepository = removedProductRepository;
+        this.categoryRepository = categoryRepository;
+        this.supplierRepository = supplierRepository;
+
     }
 
     @GetMapping
@@ -58,6 +68,10 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product>postNewProduct(@RequestBody Product newProduct){
+        Category category = categoryRepository.getReferenceById(newProduct.getCategory().getId());
+        Supplier supplier = supplierRepository.getReferenceById(newProduct.getCategory().getId());
+        newProduct.setSupplier(supplier);
+        newProduct.setCategory(category);
         try {
             Product addedProduct = productRepository.save(newProduct);
             return ResponseEntity.ok(addedProduct);
@@ -68,14 +82,16 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Product> putProduct(@PathVariable Integer id, @RequestBody Product updatedProduct){
+        Category category = categoryRepository.getReferenceById(updatedProduct.getCategory().getId());
+        Supplier supplier = supplierRepository.getReferenceById(updatedProduct.getCategory().getId());
         return productRepository.findById(id)
                 .map(product -> {
                     product.setName(updatedProduct.getName());
                     product.setDescription(updatedProduct.getDescription());
                     product.setPrice(updatedProduct.getPrice());
                     product.setStock_quantity(updatedProduct.getStock_quantity());
-                    product.setCategory(updatedProduct.getCategory());
-                    product.setSupplier(updatedProduct.getSupplier());
+                    product.setCategory(category);
+                    product.setSupplier(supplier);
                     return ResponseEntity.ok(productRepository.save(product));
                 })
                 .orElse(ResponseEntity.notFound().build());
