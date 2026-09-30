@@ -1,16 +1,18 @@
 package fi.metropolia.riikaka.webstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name="supplieraddresses")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SupplierAddress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Supplier supplier;
     private String street_address;
     private String postal_code;

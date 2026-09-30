@@ -57,7 +57,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Product>postNewProduct(@RequestBody Product newProduct){
         Category category = categoryRepository.getReferenceById(newProduct.getCategory().getId());
-        Supplier supplier = supplierRepository.getReferenceById(newProduct.getCategory().getId());
+        Supplier supplier = supplierRepository.getReferenceById(newProduct.getSupplier().getId());
         newProduct.setSupplier(supplier);
         newProduct.setCategory(category);
         try {

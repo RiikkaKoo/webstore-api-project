@@ -1,34 +1,37 @@
 package fi.metropolia.riikaka.webstore.controller;
 
-import fi.metropolia.riikaka.webstore.entity.Order;
-import fi.metropolia.riikaka.webstore.entity.OrderItem;
-import fi.metropolia.riikaka.webstore.entity.OrderItemId;
-import fi.metropolia.riikaka.webstore.entity.OrderItemsView;
-import fi.metropolia.riikaka.webstore.repository.OrderItemRepository;
-import fi.metropolia.riikaka.webstore.repository.OrderItemsViewRepository;
-import fi.metropolia.riikaka.webstore.repository.OrderRepository;
-import fi.metropolia.riikaka.webstore.repository.ProductRepository;
+import fi.metropolia.riikaka.webstore.entity.*;
+import fi.metropolia.riikaka.webstore.repository.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderRepository orderRepository;
+    private final PickupOrderRepository pickupOrderRepository;
+    private final DeliveryOrderRepository deliveryOrderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderItemsViewRepository orderItemsViewRepository;
     private final ProductRepository productRepository;
 
     public OrderController(OrderRepository orderRepository, OrderItemRepository orderItemRepository,
-                           ProductRepository productRepository, OrderItemsViewRepository orderItemsViewRepository) {
+                           ProductRepository productRepository, OrderItemsViewRepository orderItemsViewRepository,
+                           PickupOrderRepository pickupOrderRepository, DeliveryOrderRepository deliveryOrderRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
         this.orderItemsViewRepository = orderItemsViewRepository;
+        this.pickupOrderRepository = pickupOrderRepository;
+        this.deliveryOrderRepository = deliveryOrderRepository;
     }
 
     @GetMapping
@@ -58,13 +61,15 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/items/add/{productId}")
-    public ResponseEntity<OrderItem> addProductToOrder(@PathVariable Integer id, @PathVariable Integer productId, @RequestBody OrderItem newOrderItem) {
+    public ResponseEntity<OrderItemDTO> addProductToOrder(@PathVariable int id, @PathVariable int productId, @RequestBody OrderItem newOrderItem) {
         try {
             OrderItemId orderItemId = new OrderItemId(orderRepository.getReferenceById(id), productRepository.getReferenceById(productId));
             float unit_price = productRepository.getReferenceById(productId).getPrice();
             OrderItem orderItem = new OrderItem(orderItemId, newOrderItem.getQuantity(), unit_price);
             OrderItem saved = orderItemRepository.save(orderItem);
-            return ResponseEntity.ok(saved);
+
+            OrderItemDTO response = new OrderItemDTO(id, productId, productRepository.getReferenceById(productId).getName(), saved.getQuantity(), saved.getUnit_price());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -87,24 +92,47 @@ public class OrderController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Order> postOrder(@RequestBody Order newOrder) {
-        try {
-            Order order = orderRepository.save(newOrder);
-            return ResponseEntity.ok(order);
+    @PostMapping("/pickup")
+    public ResponseEntity<Order> postPickupOrder(@RequestBody PickUpOrder newOrder) {
+        try{
+            newOrder.setFinal_pickup_date(LocalDate.now().plusWeeks(2));
+            Order saved = orderRepository.save(newOrder);
+            return ResponseEntity.ok(saved);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Order> putOrder(@PathVariable Integer id, @RequestBody Order updatedOrder) {
-        return orderRepository.findById(id).map(order -> {
+    @PostMapping("/delivery")
+    public ResponseEntity<Order> postDeliveryOrder(@RequestBody DeliveryOrder newOrder) {
+        try{
+            Order saved = orderRepository.save(newOrder);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/pickup/{id}")
+    public ResponseEntity<PickUpOrder> putPickupOrder(@PathVariable Integer id, @RequestBody PickUpOrder updatedOrder) {
+        return pickupOrderRepository.findById(id).map(order -> {
             order.setCustomer(updatedOrder.getCustomer());
             order.setOrder_date(updatedOrder.getOrder_date());
-            order.setDelivery_date(updatedOrder.getDelivery_date());
-            order.setShipping_address(updatedOrder.getShipping_address());
             order.setStatus(updatedOrder.getStatus());
+            order.setFinal_pickup_date(updatedOrder.getFinal_pickup_date());
+            order.setPickup_location(updatedOrder.getPickup_location());
+            return ResponseEntity.ok(orderRepository.save(order));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/delivery/{id}")
+    public ResponseEntity<DeliveryOrder> putDeliveryOrder(@PathVariable Integer id, @RequestBody DeliveryOrder updatedOrder) {
+        return deliveryOrderRepository.findById(id).map(order -> {
+            order.setCustomer(updatedOrder.getCustomer());
+            order.setOrder_date(updatedOrder.getOrder_date());
+            order.setStatus(updatedOrder.getStatus());
+            order.setShipping_address(updatedOrder.getShipping_address());
+            order.setDelivery_date(updatedOrder.getDelivery_date());
             return ResponseEntity.ok(orderRepository.save(order));
         }).orElse(ResponseEntity.notFound().build());
     }

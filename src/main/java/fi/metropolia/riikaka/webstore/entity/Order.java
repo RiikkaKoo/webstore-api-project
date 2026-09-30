@@ -3,22 +3,21 @@ package fi.metropolia.riikaka.webstore.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn
 @Table(name="orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @ManyToOne
+    @ManyToOne (fetch=FetchType.LAZY, optional = false)
     private Customer customer;
+    @Column(insertable = false)
     private LocalDateTime order_date;
-    private LocalDateTime delivery_date;
-    @ManyToOne
-    private CustomerAddress shipping_address;
+    @Column(insertable = false)
     private String status;
 
     public Order() {
@@ -46,22 +45,6 @@ public class Order {
 
     public void setOrder_date(LocalDateTime order_date) {
         this.order_date = order_date;
-    }
-
-    public LocalDateTime getDelivery_date() {
-        return delivery_date;
-    }
-
-    public void setDelivery_date(LocalDateTime delivery_date) {
-        this.delivery_date = delivery_date;
-    }
-
-    public CustomerAddress getShipping_address() {
-        return shipping_address;
-    }
-
-    public void setShipping_address(CustomerAddress shipping_address) {
-        this.shipping_address = shipping_address;
     }
 
     public String getStatus() {

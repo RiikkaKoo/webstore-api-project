@@ -14,15 +14,57 @@ Content-Type: application/json
 {
   "first_name": "Test",
   "last_name": "CustomerTwo",
-  "email": "testcustomertwo@email.com",
+  "email": "test2@email.com",
   "phone": "02012345671122"
 }
+
+### customeraddress post test
+POST http://127.0.0.1:8090/api/customers/100001/address
+Content-Type: application/json
+
+{
+  "street_address": "UusiLisäystesti",
+  "country": "UusiLisäystesti",
+  "postal_code": "11111",
+  "city": "UusiLisäystesti"
+}
+
+### customer delete test
+DELETE http://127.0.0.1:8090/api/customers/100007
+Content-Type: application/json
 
 ### customer delete fail test
 DELETE http://127.0.0.1:8090/api/customers/999999999
 Content-Type: application/json
 
 #----------------------------------------------------------------------------------------------#
+
+### category post test
+POST http://localhost:8090/api/categories
+Content-Type: application/json
+
+{
+  "description": "Hienoja tuotteita",
+  "name": "Hienottuotteet"
+}
+
+### product post test
+POST http://localhost:8090/api/products
+Content-Type: application/json
+
+{
+  "name": "Hienotuote",
+  "description": "Tämä on oikein hieno",
+  "stock_quantity": 80,
+  "price": 33.44,
+  "archived": false,
+  "category": {
+    "id": 11
+  },
+  "supplier": {
+    "id": 101
+  }
+}
 
 ### product put test
 PUT http://localhost:8090/api/products/77
@@ -38,7 +80,7 @@ Content-Type: application/json
     "id": 3
   },
   "supplier": {
-    "id": 6
+    "id": 101
   }
 }
 
@@ -48,6 +90,34 @@ Content-Type: application/json
 
 #----------------------------------------------------------------------------------------------#
 
+### order post test
+POST http://127.0.0.1:8090/api/orders/pickup
+Content-Type: application/json
+
+{
+  "customer": {
+    "id": 100001
+  },
+  "shipping_address": {
+    "id": 100002
+  },
+  "final_pickup_date": "",
+  "pickup_location": "Vantaa"
+}
+
+### order post test
+POST http://127.0.0.1:8090/api/orders/delivery
+Content-Type: application/json
+
+{
+  "customer": {
+    "id": 100001
+  },
+  "shipping_address": {
+    "id": 100002
+  }
+}
+
 ### order delete test
 DELETE http://127.0.0.1:8090/api/orders/555
 Content-Type: application/json
@@ -56,22 +126,22 @@ Content-Type: application/json
 #----------------------------------------------------------------------------------------------#
 
 ### orderitem post test
-POST http://127.0.0.1:8090/api/orders/70/items/add/60
+POST http://127.0.0.1:8090/api/orders/200007/items/add/1
 Content-Type: application/json
 
 {
   "unit_price": 730.52,
-  "quantity": 8
+  "quantity": 90
 }
 
-### orderitem post test
-DELETE http://127.0.0.1:8090/api/orders/70/items/remove/60
+### orderitem delete test
+DELETE http://127.0.0.1:8090/api/orders/200007/items/remove/1
 Content-Type: application/json
 
 #----------------------------------------------------------------------------------------------#
 
 ### supplieraddress put test
-PUT http://127.0.0.1:8090/api/suppliers/13/address
+PUT http://127.0.0.1:8090/api/suppliers/101/address
 Content-Type: application/json
 
 {

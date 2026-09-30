@@ -1,7 +1,9 @@
 package fi.metropolia.riikaka.webstore.controller;
 
+import fi.metropolia.riikaka.webstore.entity.DailySales;
 import fi.metropolia.riikaka.webstore.entity.OrdersStatsView;
 import fi.metropolia.riikaka.webstore.entity.StockSuppliersView;
+import fi.metropolia.riikaka.webstore.repository.DailySalesRepository;
 import fi.metropolia.riikaka.webstore.repository.OrdersStatsViewRepository;
 import fi.metropolia.riikaka.webstore.repository.StockSuppliersViewRepository;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +21,13 @@ public class ReportController {
 
     private final OrdersStatsViewRepository ordersStatsViewRepository;
     private final StockSuppliersViewRepository stockSuppliersViewRepository;
+    private final DailySalesRepository dailySalesRepository;
 
-    public ReportController(OrdersStatsViewRepository ordersStatsViewRepository, StockSuppliersViewRepository stockSuppliersViewRepository) {
+    public ReportController(OrdersStatsViewRepository ordersStatsViewRepository, StockSuppliersViewRepository stockSuppliersViewRepository,
+                            DailySalesRepository dailySalesRepository) {
         this.ordersStatsViewRepository = ordersStatsViewRepository;
         this.stockSuppliersViewRepository = stockSuppliersViewRepository;
+        this.dailySalesRepository = dailySalesRepository;
     }
 
     @GetMapping("/country/sales")
@@ -40,6 +45,16 @@ public class ReportController {
         return ordersStatsViewRepository.findById(country)
                 .map(report -> ResponseEntity.ok(report))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/dailysales")
+    public ResponseEntity<List<DailySales>> getDailySalesReport() {
+        List<DailySales> report = dailySalesRepository.findAll();
+        if (!report.isEmpty()) {
+            return ResponseEntity.ok(report);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/stock/suppliers")

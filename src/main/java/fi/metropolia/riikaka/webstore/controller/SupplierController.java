@@ -84,9 +84,11 @@ public class SupplierController {
     public ResponseEntity<SupplierAddress> postNewSupplierAddress(@PathVariable Integer id, @RequestBody SupplierAddress newSupplierAddress){
         try {
             Supplier supplier = supplierRepository.getReferenceById(id);
+            System.out.println(supplier.getName());
             SupplierAddress supplierAddress = new SupplierAddress(supplier, newSupplierAddress.getStreet_address(),
                     newSupplierAddress.getPostal_code(), newSupplierAddress.getCity(), newSupplierAddress.getCountry());
             SupplierAddress addedAddress = supplierAddressRepository.save(supplierAddress);
+            System.out.println(addedAddress.getId());
             return ResponseEntity.ok(addedAddress);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

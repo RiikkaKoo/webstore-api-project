@@ -1,5 +1,6 @@
 package fi.metropolia.riikaka.webstore.controller;
 
+import fi.metropolia.riikaka.webstore.entity.Category;
 import fi.metropolia.riikaka.webstore.entity.Customer;
 import fi.metropolia.riikaka.webstore.entity.CustomerAddress;
 import fi.metropolia.riikaka.webstore.entity.Order;
@@ -46,8 +47,8 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/address")
-    public ResponseEntity<List<CustomerAddress>> getCustomerAddress(@PathVariable Integer id){
-        List<CustomerAddress> addresses = customerRepository.getReferenceById(id).getCustomer_address();
+    public ResponseEntity<CustomerAddress> getCustomerAddress(@PathVariable Integer id){
+        CustomerAddress addresses = customerAddressRepository.getReferenceByCustomer(customerRepository.getReferenceById(id));
         if (addresses != null) {
             return ResponseEntity.ok(addresses);
         } else {
@@ -80,6 +81,16 @@ public class CustomerController {
         try {
             Customer addedCustomer = customerRepository.save(newCustomer);
             return ResponseEntity.ok(addedCustomer);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{id}/address")
+    public ResponseEntity<CustomerAddress> postCustomerAddress(@PathVariable Integer id, @RequestBody CustomerAddress newAddress){
+        try {
+            newAddress.setCustomer(customerRepository.getReferenceById(id));
+            return ResponseEntity.ok(customerAddressRepository.save(newAddress));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

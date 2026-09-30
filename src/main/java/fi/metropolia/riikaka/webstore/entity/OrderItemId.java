@@ -1,17 +1,14 @@
 package fi.metropolia.riikaka.webstore.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 
 @Embeddable
 public class OrderItemId implements Serializable {
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Order order;
 
     @ManyToOne(cascade = {
@@ -19,7 +16,7 @@ public class OrderItemId implements Serializable {
             CascadeType.REFRESH,
             CascadeType.MERGE,
             CascadeType.DETACH
-    })
+    },  fetch = FetchType.LAZY)
     private Product product;
 
     public OrderItemId() {

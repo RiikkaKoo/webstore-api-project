@@ -9,6 +9,8 @@ public class CustomerAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Customer customer;
 
     private String street_address;
     private String postal_code;
@@ -56,5 +58,13 @@ public class CustomerAddress {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
