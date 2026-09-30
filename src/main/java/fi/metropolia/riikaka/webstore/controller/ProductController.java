@@ -6,6 +6,10 @@ import fi.metropolia.riikaka.webstore.entity.Supplier;
 import fi.metropolia.riikaka.webstore.repository.CategoryRepository;
 import fi.metropolia.riikaka.webstore.repository.ProductRepository;
 import fi.metropolia.riikaka.webstore.repository.SupplierRepository;
+import fi.metropolia.riikaka.webstore.service.ProductService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +20,33 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
 
+    private final ProductService productService;
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final SupplierRepository supplierRepository;
 
     public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository,
-                             SupplierRepository supplierRepository) {
+                             SupplierRepository supplierRepository, ProductService productService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.supplierRepository = supplierRepository;
-
+        this.productService = productService;
     }
 
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(){
 
         List<Product> products = productRepository.findAll();
+        if (products.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/search/{key}")
+    public ResponseEntity<List<Product>> getProductsByCriteria(@PathVariable String key){
+        List<Product> products = productService.findByCriteria(key);
         if (products.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -48,6 +63,15 @@ public class ProductController {
     @GetMapping("/archived")
     public ResponseEntity<List<Product>> getRemovedProducts(){
         List<Product> products = productRepository.findAllByArchived(true);
+        if (products.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/lowStock/{max}")
+    public ResponseEntity<List<Product>> getProductsLowOnStock(@PathVariable int max){
+        List<Product> products = productRepository.findProductsLowOnStock(max);
         if (products.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -83,6 +107,13 @@ public class ProductController {
                     return ResponseEntity.ok(productRepository.save(product));
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/price/increase/{percent}")
+    public ResponseEntity<String> increaseProductPrices(@PathVariable float percent){
+        float increase = 1 + (percent/100);
+        int changed = productRepository.increasePrice(increase);
+        return ResponseEntity.ok("Price increased by " + percent + "% for " + changed + " products.");
     }
 
     @DeleteMapping("/{id}")
