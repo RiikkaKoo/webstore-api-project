@@ -10,7 +10,7 @@ public class OrdersStatsView {
 
     @Id
     private String country;
-    private int orders;
+    private int delivery_orders;
     private float sales;
 
     public OrdersStatsView() {
@@ -18,7 +18,7 @@ public class OrdersStatsView {
 
     public OrdersStatsView(String country, int orders, float sales) {
         this.country = country;
-        this.orders = orders;
+        this.delivery_orders = orders;
         this.sales = sales;
     }
 
@@ -30,12 +30,12 @@ public class OrdersStatsView {
         this.country = country;
     }
 
-    public int getOrders() {
-        return orders;
+    public int getDelivery_orders() {
+        return delivery_orders;
     }
 
-    public void setOrders(int orders) {
-        this.orders = orders;
+    public void setDelivery_orders(int delivery_orders) {
+        this.delivery_orders = delivery_orders;
     }
 
     public float getSales() {

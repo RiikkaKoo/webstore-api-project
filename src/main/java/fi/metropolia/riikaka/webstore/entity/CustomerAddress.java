@@ -9,7 +9,7 @@ public class CustomerAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(optional = false)
     private Customer customer;
 
     private String street_address;

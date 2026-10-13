@@ -12,7 +12,7 @@ public class SupplierAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(optional = false)
     private Supplier supplier;
     private String street_address;
     private String postal_code;

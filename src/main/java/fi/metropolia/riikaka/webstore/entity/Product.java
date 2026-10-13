@@ -1,6 +1,7 @@
 package fi.metropolia.riikaka.webstore.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import fi.metropolia.riikaka.webstore.utils.ActiveInactiveBooleanConverter;
 import jakarta.persistence.*;
 
 @Entity
@@ -15,7 +16,9 @@ public class Product {
     private String description;
     private float price;
     private int stock_quantity;
-    private boolean archived;
+    @Column(name = "active", nullable = false)
+    @Convert(converter = ActiveInactiveBooleanConverter.class)
+    private boolean active;
 
     @ManyToOne(cascade = {
             CascadeType.PERSIST,
@@ -76,12 +79,12 @@ public class Product {
         this.stock_quantity = stock_quantity;
     }
 
-    public boolean isArchived() {
-        return archived;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setArchived(boolean archived) {
-        this.archived = archived;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Category getCategory() {

@@ -6,6 +6,7 @@ import fi.metropolia.riikaka.webstore.entity.StockSuppliersView;
 import fi.metropolia.riikaka.webstore.repository.DailySalesRepository;
 import fi.metropolia.riikaka.webstore.repository.OrdersStatsViewRepository;
 import fi.metropolia.riikaka.webstore.repository.StockSuppliersViewRepository;
+import fi.metropolia.riikaka.webstore.service.ReportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,21 +20,16 @@ import java.util.List;
 @RequestMapping("/api/reports")
 public class ReportController {
 
-    private final OrdersStatsViewRepository ordersStatsViewRepository;
-    private final StockSuppliersViewRepository stockSuppliersViewRepository;
-    private final DailySalesRepository dailySalesRepository;
+    private final ReportService reportService;
 
-    public ReportController(OrdersStatsViewRepository ordersStatsViewRepository, StockSuppliersViewRepository stockSuppliersViewRepository,
-                            DailySalesRepository dailySalesRepository) {
-        this.ordersStatsViewRepository = ordersStatsViewRepository;
-        this.stockSuppliersViewRepository = stockSuppliersViewRepository;
-        this.dailySalesRepository = dailySalesRepository;
+    public ReportController(ReportService reportService) {
+        this.reportService = reportService;
     }
 
     @GetMapping("/country/sales")
     public ResponseEntity<List<OrdersStatsView>> getCountrySalesReport() {
-        List<OrdersStatsView> report = ordersStatsViewRepository.findAll();
-        if (!report.isEmpty()) {
+        List<OrdersStatsView> report = reportService.findCountrySalesReport();
+        if (report != null) {
             return ResponseEntity.ok(report);
         } else {
             return ResponseEntity.notFound().build();
@@ -42,54 +38,51 @@ public class ReportController {
 
     @GetMapping("/country/{country}/sales")
     public ResponseEntity<OrdersStatsView> getCountrySalesReportByCountry(@PathVariable String country) {
-        return ordersStatsViewRepository.findById(country)
-                .map(report -> ResponseEntity.ok(report))
-                .orElse(ResponseEntity.notFound().build());
+        OrdersStatsView ordersStatsView = reportService.findCountrySalesReportByCountry(country);
+        if (ordersStatsView == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+           return ResponseEntity.ok(ordersStatsView);
+        }
     }
 
     @GetMapping("/dailysales")
     public ResponseEntity<List<DailySales>> getDailySalesReport() {
-        List<DailySales> report = dailySalesRepository.findAll();
-        if (!report.isEmpty()) {
-            return ResponseEntity.ok(report);
-        } else {
+        List<DailySales> report = reportService.findDailySalesReport();
+        if (report == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(report);
         }
     }
 
     @GetMapping("/stock/suppliers")
     public ResponseEntity<List<StockSuppliersView>> getStockSuppliersReport() {
-        List<StockSuppliersView> report = stockSuppliersViewRepository.findAll();
-        if (!report.isEmpty()) {
-            return ResponseEntity.ok(report);
-        } else {
+        List<StockSuppliersView> report = reportService.findStockSuppliersReport();
+        if (report == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(report);
         }
     }
 
     @GetMapping("/stock/suppliers/{supplierId}")
     public ResponseEntity<List<StockSuppliersView>> getStockSuppliersBySupplierIdReport(@PathVariable Integer supplierId) {
-        List<StockSuppliersView> report = stockSuppliersViewRepository.findAllBySupplierId(supplierId);
-        if (!report.isEmpty()) {
-            return ResponseEntity.ok(report);
-        } else {
+        List<StockSuppliersView> report = reportService.findStockSuppliersBySupplierIdReport(supplierId);
+        if (report == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(report);
         }
     }
 
     @GetMapping("/stock/{threshold}/suppliers")
     public ResponseEntity<List<StockSuppliersView>> getStockSuppliersBelowStockThresholdReport(@PathVariable Integer threshold) {
-        List<StockSuppliersView> all = stockSuppliersViewRepository.findAll();
-        List<StockSuppliersView> below = new ArrayList<StockSuppliersView>();
-        for (StockSuppliersView line : all) {
-            if (line.getStock_quantity() < threshold) {
-                below.add(line);
-            }
-        }
-        if (!below.isEmpty()) {
-            return ResponseEntity.ok(below);
-        } else {
+        List<StockSuppliersView> all = reportService.findStockSuppliersBelowStockThresholdReport(threshold);
+        if (all == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(all);
         }
     }
 }

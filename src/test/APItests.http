@@ -1,9 +1,9 @@
 ### customer put test
-PUT http://127.0.0.1:8090/api/customers/999
+PUT http://127.0.0.1:8090/api/customers/51
 Content-Type: application/json
 
 {
-  "first_name": "NewName"
+  "last_name": "Lastname"
 }
 
 
@@ -19,7 +19,7 @@ Content-Type: application/json
 }
 
 ### customeraddress post test
-POST http://127.0.0.1:8090/api/customers/100001/address
+POST http://127.0.0.1:8090/api/customers/56/address
 Content-Type: application/json
 
 {
@@ -30,7 +30,7 @@ Content-Type: application/json
 }
 
 ### customer delete test
-DELETE http://127.0.0.1:8090/api/customers/100007
+DELETE http://127.0.0.1:8090/api/customers/55
 Content-Type: application/json
 
 ### customer delete fail test
@@ -48,6 +48,22 @@ Content-Type: application/json
   "name": "Hienottuotteet"
 }
 
+### category put test
+PUT http://localhost:8090/api/categories/11
+Content-Type: application/json
+
+{
+  "description": "Erittäin hienoja tuotteita",
+  "name": "Erittäin Hienottuotteet"
+}
+
+### category delete test
+DELETE http://localhost:8090/api/categories/11
+Content-Type: application/json
+
+
+
+
 ### product post test
 POST http://localhost:8090/api/products
 Content-Type: application/json
@@ -57,12 +73,12 @@ Content-Type: application/json
   "description": "Tämä on oikein hieno",
   "stock_quantity": 80,
   "price": 33.44,
-  "archived": false,
+  "active": false,
   "category": {
-    "id": 11
+    "id": 10
   },
   "supplier": {
-    "id": 101
+    "id": 60
   }
 }
 
@@ -71,11 +87,29 @@ PUT http://localhost:8090/api/products/77
 Content-Type: application/json
 
 {
+  "name": "Spark Carrier 878",
+  "description": "Remember boy approach camera fund whether such.",
+  "stock_quantity": 120,
+  "price": 500.32,
+  "active": true,
+  "category": {
+    "id": 5
+  },
+  "supplier": {
+    "id": 40
+  }
+}
+
+### product put test fail
+PUT http://localhost:8090/api/products/77
+Content-Type: application/json
+
+{
   "name": "",
   "description": "",
   "stock_quantity": -60,
   "price": 33.44,
-  "archived": false,
+  "active": false,
   "category": {
     "id": 3
   },
@@ -85,71 +119,79 @@ Content-Type: application/json
 }
 
 ### product delete test
-DELETE http://127.0.0.1:8090/api/products/793
+DELETE http://127.0.0.1:8090/api/products/1003
 Content-Type: application/json
 
 #----------------------------------------------------------------------------------------------#
 
-### order post test
-POST http://127.0.0.1:8090/api/orders/pickup
+### pickup order post test
+POST http://127.0.0.1:8090/api/delivery_orders/pickup
 Content-Type: application/json
 
 {
   "customer": {
-    "id": 100001
+    "id": 2
   },
   "shipping_address": {
-    "id": 100002
+    "id": 2
   },
   "final_pickup_date": "",
   "pickup_location": "Vantaa"
 }
 
-### order post test
-POST http://127.0.0.1:8090/api/orders/delivery
+### delivery order post test
+POST http://127.0.0.1:8090/api/delivery_orders/delivery
 Content-Type: application/json
 
 {
   "customer": {
-    "id": 100001
+    "id": 1
   },
   "shipping_address": {
-    "id": 100002
+    "id": 1
   }
 }
 
+### delivery order put test
+PUT http://127.0.0.1:8090/api/delivery_orders/delivery/39
+Content-Type: application/json
+
+{
+  "delivery_date": "2026-10-12T17:45:00",
+  "status": "DELIVERED"
+}
+
+### pickup order put test
+PUT http://127.0.0.1:8090/api/delivery_orders/pickup/41
+Content-Type: application/json
+
+{
+  "final_pickup_date": "2026-10-30",
+  "pickup_location": "Helsinki",
+  "status": "READY TO PICKUP"
+}
+
 ### order delete test
-DELETE http://127.0.0.1:8090/api/orders/555
+DELETE http://127.0.0.1:8090/api/delivery_orders/42
 Content-Type: application/json
 
 
 #----------------------------------------------------------------------------------------------#
 
 ### orderitem post test
-POST http://127.0.0.1:8090/api/orders/200007/items/add/1
+POST http://127.0.0.1:8090/api/delivery_orders/20/items/add/1
 Content-Type: application/json
 
 {
-  "unit_price": 730.52,
-  "quantity": 90
+  "unit_price": 0,
+  "quantity": 9
 }
 
 ### orderitem delete test
-DELETE http://127.0.0.1:8090/api/orders/200007/items/remove/1
+DELETE http://127.0.0.1:8090/api/delivery_orders/20/items/remove/1
 Content-Type: application/json
 
 #----------------------------------------------------------------------------------------------#
-
-### supplieraddress put test
-PUT http://127.0.0.1:8090/api/suppliers/101/address
-Content-Type: application/json
-
-{
-  "street_address": "Uusikatu 1",
-  "city": "Uusikaupunki",
-  "postal_code": "00115",
-  "country": "Maa"
-}
 
 ### supplier post test
 POST http://127.0.0.1:8090/api/suppliers
@@ -162,8 +204,17 @@ Content-Type: application/json
   "phone": "02013456789"
 }
 
+### supplier put test
+PUT http://127.0.0.1:8090/api/suppliers/104
+Content-Type: application/json
+
+{
+  "email": "uusi@email.com",
+  "phone": "033333333333"
+}
+
 ### supplieraddress post test
-POST http://127.0.0.1:8090/api/suppliers/101/address
+POST http://127.0.0.1:8090/api/suppliers/104/address
 Content-Type: application/json
 
 {
@@ -173,6 +224,19 @@ Content-Type: application/json
   "country": "TestaajienMaa"
 }
 
+### supplieraddress put test
+PUT http://127.0.0.1:8090/api/suppliers/104/address
+Content-Type: application/json
+
+{
+  "street_address": "Uusikatu 1",
+  "city": "Uusikaupunki"
+}
+
 ### supplieraddress delete test
-DELETE http://127.0.0.1:8090/api/suppliers/101/address
+DELETE http://127.0.0.1:8090/api/suppliers/103/address
+Content-Type: application/json
+
+### supplier delete test
+DELETE http://127.0.0.1:8090/api/suppliers/103
 Content-Type: application/json

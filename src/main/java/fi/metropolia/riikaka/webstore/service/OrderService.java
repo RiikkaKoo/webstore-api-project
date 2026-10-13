@@ -1,0 +1,171 @@
+package fi.metropolia.riikaka.webstore.service;
+
+import fi.metropolia.riikaka.webstore.entity.*;
+import fi.metropolia.riikaka.webstore.repository.*;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final PickupOrderRepository pickupOrderRepository;
+    private final DeliveryOrderRepository deliveryOrderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderItemsViewRepository orderItemsViewRepository;
+    private final ProductRepository productRepository;
+
+    public OrderService (OrderRepository orderRepository, OrderItemRepository orderItemRepository,
+                           ProductRepository productRepository, OrderItemsViewRepository orderItemsViewRepository,
+                           PickupOrderRepository pickupOrderRepository, DeliveryOrderRepository deliveryOrderRepository) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.productRepository = productRepository;
+        this.orderItemsViewRepository = orderItemsViewRepository;
+        this.pickupOrderRepository = pickupOrderRepository;
+        this.deliveryOrderRepository = deliveryOrderRepository;
+    }
+
+    public List<Order> findAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        if (orders.isEmpty()) {
+            return null;
+        } else {
+            return orders;
+        }
+    }
+
+    public Order findOrderById(int id) {
+        if (orderRepository.findById(id).isEmpty()) {
+            return null;
+        } else {
+            return orderRepository.findById(id).get();
+        }
+    }
+
+    public List<OrderItemsView> findOrderItems(int id) {
+        if (orderRepository.existsById(id)) {
+            List<OrderItemsView> orderItems = orderItemsViewRepository.findByOrderItemsViewIdOrderId(id);
+            if (orderItems.isEmpty()) {
+                return null;
+            } else {
+                return orderItems;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public OrderItemDTO addProductToOrder(int id, int productId, OrderItem newOrderItem) {
+        try {
+            // Decrease stock
+            Product product = productRepository.findById(productId);
+            int new_stock_quantity = product.getStock_quantity() - newOrderItem.getQuantity();
+            if (new_stock_quantity < 0) {
+                throw new IllegalArgumentException(
+                        "Not enough stock"
+                );
+            }
+            product.setStock_quantity(new_stock_quantity);
+            Product updatedProduct = productRepository.save(product);
+
+            // Save item to order
+            OrderItemId orderItemId = new OrderItemId(orderRepository.getReferenceById(id), updatedProduct);
+            OrderItem orderItem = new OrderItem(orderItemId, newOrderItem.getQuantity(), product.getPrice());
+            OrderItem saved = orderItemRepository.save(orderItem);
+
+            OrderItemDTO response = new OrderItemDTO(id, productId, productRepository.findById(productId).getName(), saved.getQuantity(), saved.getUnit_price());
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw (e);
+        }
+    }
+
+    @Transactional
+    public String removeProductFromOrder(int id, int productId) {
+        try {
+            OrderItemId orderItemId = new OrderItemId(orderRepository.getReferenceById(id), productRepository.findById(productId));
+            if (orderItemRepository.existsById(orderItemId)) {
+
+                // Increase stock
+                OrderItem orderItem = orderItemRepository.findByOrderItemId(orderItemId);
+                Product product = productRepository.findById(productId);
+                product.setStock_quantity(product.getStock_quantity() + orderItem.getQuantity());
+                productRepository.save(product);
+
+                orderItemRepository.deleteById(orderItemId);
+                return "Product with ID " + productId +" was successfully removed from order " + id;
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw (e);
+        }
+    }
+
+    public Order addPickupOrder(PickUpOrder newOrder) {
+        try {
+            newOrder.setFinal_pickup_date(LocalDate.now().plusWeeks(2));
+            return orderRepository.save(newOrder);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Order addDeliveryOrder(DeliveryOrder newOrder) {
+        try {
+            return orderRepository.save(newOrder);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Transactional
+    public PickUpOrder updatePickupOrder(int id, PickUpOrder updatedOrder) {
+        PickUpOrder pickUpOrder = pickupOrderRepository.getReferenceById(id);
+        pickUpOrder.setStatus(updatedOrder.getStatus());
+        pickUpOrder.setFinal_pickup_date(updatedOrder.getFinal_pickup_date());
+        pickUpOrder.setPickup_location(updatedOrder.getPickup_location());
+        try {
+            return orderRepository.save(pickUpOrder);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw (e);
+        }
+    }
+
+    @Transactional
+    public DeliveryOrder updateDeliveryOrder(int id, DeliveryOrder updatedOrder) {
+        DeliveryOrder deliveryOrder = deliveryOrderRepository.getReferenceById(id);
+        deliveryOrder.setStatus(updatedOrder.getStatus());
+        deliveryOrder.setDelivery_date(updatedOrder.getDelivery_date());
+        try {
+            return orderRepository.save(deliveryOrder);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw (e);
+        }
+    }
+
+    @Transactional
+    public String removeOrder(int id) {
+        try {
+            if (orderRepository.existsById(id)) {
+                orderRepository.deleteById(id);
+                return "Order with ID " + id +" was successfully deleted";
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw (e);
+        }
+    }
+}

@@ -1,12 +1,10 @@
 package fi.metropolia.riikaka.webstore.controller;
 
-import fi.metropolia.riikaka.webstore.entity.Category;
 import fi.metropolia.riikaka.webstore.entity.Customer;
 import fi.metropolia.riikaka.webstore.entity.CustomerAddress;
 import fi.metropolia.riikaka.webstore.entity.Order;
-import fi.metropolia.riikaka.webstore.repository.CustomerAddressRepository;
-import fi.metropolia.riikaka.webstore.repository.CustomerRepository;
-import fi.metropolia.riikaka.webstore.repository.OrderRepository;
+import fi.metropolia.riikaka.webstore.entity.SupplierAddress;
+import fi.metropolia.riikaka.webstore.service.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,38 +15,35 @@ import java.util.List;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    private final CustomerRepository customerRepository;
-    private final CustomerAddressRepository customerAddressRepository;
-    private final OrderRepository orderRepository;
+    private final CustomerService customerService;
 
-    public CustomerController(CustomerRepository customerRepository, CustomerAddressRepository customerAddressRepository,
-                              OrderRepository orderRepository) {
-        this.customerRepository = customerRepository;
-        this.customerAddressRepository = customerAddressRepository;
-        this.orderRepository = orderRepository;
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
-    // Get all Customers
     @GetMapping
     public ResponseEntity<List<Customer>> getCustomers(){
-
-        List<Customer> customers = customerRepository.findAll();
-        if (customers.isEmpty()) {
+        List<Customer> customers = customerService.findAllCustomers();
+        if (customers == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(customers);
         }
-        return ResponseEntity.ok(customers);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getByCustomerId(@PathVariable Integer id){
-        return customerRepository.findById(id)
-                .map(customer -> ResponseEntity.ok(customer))
-                .orElse(ResponseEntity.notFound().build());
+        Customer customer = customerService.findCustomerById(id);
+        if (customer == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(customer);
+        }
     }
 
     @GetMapping("/{id}/address")
     public ResponseEntity<CustomerAddress> getCustomerAddress(@PathVariable Integer id){
-        CustomerAddress addresses = customerAddressRepository.getReferenceByCustomer(customerRepository.getReferenceById(id));
+        CustomerAddress addresses = customerService.findCustomerAddress(id);
         if (addresses != null) {
             return ResponseEntity.ok(addresses);
         } else {
@@ -58,7 +53,7 @@ public class CustomerController {
 
     @GetMapping("/{id}/orders")
     public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable Integer id){
-        List<Order> orders = orderRepository.findByCustomer(customerRepository.getReferenceById(id));
+        List<Order> orders = customerService.findCustomerOrders(id);
         if (orders != null) {
             return ResponseEntity.ok(orders);
         } else {
@@ -68,7 +63,7 @@ public class CustomerController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<Customer> getByCustomerEmail(@PathVariable String email){
-        Customer customer = customerRepository.findByEmail(email);
+        Customer customer = customerService.findCustomerByEmail(email);
         if (customer != null) {
             return ResponseEntity.ok(customer);
         } else {
@@ -78,50 +73,73 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<Customer>postNewCustomer(@RequestBody Customer newCustomer){
-        try {
-            Customer addedCustomer = customerRepository.save(newCustomer);
-            return ResponseEntity.ok(addedCustomer);
-        } catch (Exception e) {
+        Customer addedCustomer = customerService.addNewCustomer(newCustomer);
+        if(addedCustomer == null) {
             return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(addedCustomer);
         }
     }
 
     @PostMapping("/{id}/address")
     public ResponseEntity<CustomerAddress> postCustomerAddress(@PathVariable Integer id, @RequestBody CustomerAddress newAddress){
-        try {
-            newAddress.setCustomer(customerRepository.getReferenceById(id));
-            return ResponseEntity.ok(customerAddressRepository.save(newAddress));
-        } catch (Exception e) {
+        CustomerAddress addedAddress = customerService.addCustomerAddress(id, newAddress);
+        if (addedAddress == null) {
             return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(addedAddress);
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Customer> putCustomer(@PathVariable Integer id, @RequestBody Customer updatedCustomer){
-        return customerRepository.findById(id)
-                .map(customer -> {
-                    customer.setFirst_name(updatedCustomer.getFirst_name());
-                    customer.setLast_name(updatedCustomer.getLast_name());
-                    customer.setEmail(updatedCustomer.getEmail());
-                    customer.setPhone(updatedCustomer.getPhone());
-                    return ResponseEntity.ok(customerRepository.save(customer));
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Customer customer = customerService.updateCustomer(id, updatedCustomer);
+        if (customer == null) {
+            return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(customer);
+        }
+    }
+
+    @PutMapping("/{id}/address")
+    public ResponseEntity<CustomerAddress> putCustomerAddress(@PathVariable Integer id, @RequestBody CustomerAddress customerAddress){
+        CustomerAddress address = customerService.updateCustomerAddress(id, customerAddress);
+        if (address != null) {
+            return ResponseEntity.ok(address);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCustomer(@PathVariable Integer id){
-        try {
-            if (customerRepository.existsById(id)) {
-                customerRepository.deleteById(id);
-                return ResponseEntity.ok("Customer with ID " + id +" was successfully deleted");
-            } else {
+        String message = customerService.removeCustomer(id);
+        if (message != null) {
+            if (message.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Customer with ID " + id + " was not found");
+            } else {
+                return ResponseEntity.ok(message);
             }
-        } catch (Exception e) {
+        } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Could not delete customer");
+        }
+    }
+
+    @DeleteMapping("/{id}/address")
+    public ResponseEntity<String> deleteCustomerAddress(@PathVariable Integer id){
+        String message = customerService.removeCustomerAddress(id);
+        if (message != null) {
+            if (message.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer Address for Customer with ID " + id + " was not found");
+            } else {
+                return ResponseEntity.ok(message);
+            }
+        } else  {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Could not delete customer address");
         }
     }
 }

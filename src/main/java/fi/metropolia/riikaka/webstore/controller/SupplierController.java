@@ -2,8 +2,7 @@ package fi.metropolia.riikaka.webstore.controller;
 
 import fi.metropolia.riikaka.webstore.entity.Supplier;
 import fi.metropolia.riikaka.webstore.entity.SupplierAddress;
-import fi.metropolia.riikaka.webstore.repository.SupplierAddressRepository;
-import fi.metropolia.riikaka.webstore.repository.SupplierRepository;
+import fi.metropolia.riikaka.webstore.service.SupplierService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,55 +13,55 @@ import java.util.List;
 @RequestMapping("/api/suppliers")
 public class SupplierController {
 
-    private final SupplierRepository supplierRepository;
-    private final SupplierAddressRepository supplierAddressRepository;
+    private final SupplierService supplierService;
 
-    public SupplierController(SupplierRepository supplierRepository, SupplierAddressRepository supplierAddressRepository) {
-        this.supplierRepository = supplierRepository;
-        this.supplierAddressRepository = supplierAddressRepository;
+    public SupplierController(SupplierService supplierService) {
+        this.supplierService = supplierService;
     }
 
-    // Get all Suppliers
     @GetMapping
     public ResponseEntity<List<Supplier>> getSuppliers(){
-
-        List<Supplier> suppliers = supplierRepository.findAll();
-        if (suppliers.isEmpty()) {
+        List<Supplier> suppliers = supplierService.findAllSuppliers();
+        if (suppliers == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(suppliers);
         }
-        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Supplier> getBySupplierId(@PathVariable Integer id){
-        return supplierRepository.findById(id)
-                .map(supplier -> ResponseEntity.ok(supplier))
-                .orElse(ResponseEntity.notFound().build());
+        Supplier supplier = supplierService.findSupplierById(id);
+        if (supplier == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(supplier);
+        }
     }
 
-    /*
     @GetMapping("/email/{email}")
     public ResponseEntity<Supplier> getBySupplierEmail(@PathVariable String email){
-        return supplierRepository.findByEmail(email)
-                .map(supplier -> ResponseEntity.ok(supplier))
-                .orElse(ResponseEntity.notFound().build());
+        Supplier supplier = supplierService.findSupplierByEmail(email);
+        if (supplier == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(supplier);
+        }
     }
-    */
 
     @GetMapping("/addresses")
     public ResponseEntity<List<SupplierAddress>> getSupplierAddresses(){
-
-        List<SupplierAddress> addresses = supplierAddressRepository.findAll();
-        if (addresses.isEmpty()) {
+        List<SupplierAddress> addresses = supplierService.findSupplierAddresses();
+        if (addresses == null) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(addresses);
         }
-        return ResponseEntity.ok(addresses);
     }
 
-    /* Voi palauttaa monta osoitetta halutaanko tätä? */
     @GetMapping("/{id}/address")
     public ResponseEntity<SupplierAddress> getSupplierAddress(@PathVariable Integer id){
-        SupplierAddress address = supplierAddressRepository.findBySupplier(supplierRepository.getReferenceById(id));
+        SupplierAddress address = supplierService.findSupplierAddress(id);
         if (address != null) {
             return ResponseEntity.ok(address);
         } else {
@@ -72,51 +71,39 @@ public class SupplierController {
 
     @PostMapping
     public ResponseEntity<Supplier> postNewSupplier(@RequestBody Supplier newSupplier){
-        try {
-            Supplier addedSupplier = supplierRepository.save(newSupplier);
-            return ResponseEntity.ok(addedSupplier);
-        } catch (Exception e) {
+        Supplier supplier = supplierService.addNewSupplier(newSupplier);
+        if (supplier == null) {
             return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(supplier);
         }
     }
 
     @PostMapping("/{id}/address")
     public ResponseEntity<SupplierAddress> postNewSupplierAddress(@PathVariable Integer id, @RequestBody SupplierAddress newSupplierAddress){
-        try {
-            Supplier supplier = supplierRepository.getReferenceById(id);
-            System.out.println(supplier.getName());
-            SupplierAddress supplierAddress = new SupplierAddress(supplier, newSupplierAddress.getStreet_address(),
-                    newSupplierAddress.getPostal_code(), newSupplierAddress.getCity(), newSupplierAddress.getCountry());
-            SupplierAddress addedAddress = supplierAddressRepository.save(supplierAddress);
-            System.out.println(addedAddress.getId());
-            return ResponseEntity.ok(addedAddress);
-        } catch (Exception e) {
+        SupplierAddress address = supplierService.addNewSupplierAddress(id, newSupplierAddress);
+        if (address == null) {
             return ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.ok(address);
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Supplier> putSupplier(@PathVariable Integer id, @RequestBody Supplier updatedSupplier){
-        return supplierRepository.findById(id)
-                .map(supplier -> {
-                    supplier.setName(updatedSupplier.getName());
-                    supplier.setContact_name(updatedSupplier.getContact_name());
-                    supplier.setEmail(updatedSupplier.getEmail());
-                    supplier.setPhone(updatedSupplier.getPhone());
-                    return ResponseEntity.ok(supplierRepository.save(supplier));
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Supplier supplier = supplierService.updateSupplier(id, updatedSupplier);
+        if (supplier == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(supplier);
+        }
     }
 
     @PutMapping("/{id}/address")
     public ResponseEntity<SupplierAddress> putSupplierAddress(@PathVariable Integer id, @RequestBody SupplierAddress supplierAddress){
-        SupplierAddress oldAddress = supplierAddressRepository.findBySupplier(supplierRepository.getReferenceById(id));
-        if (oldAddress != null) {
-            oldAddress.setStreet_address(supplierAddress.getStreet_address());
-            oldAddress.setCity(supplierAddress.getCity());
-            oldAddress.setPostal_code(supplierAddress.getPostal_code());
-            oldAddress.setCountry(supplierAddress.getCountry());
-            return ResponseEntity.ok(supplierAddressRepository.save(oldAddress));
+        SupplierAddress address = supplierService.updateSupplierAddress(id, supplierAddress);
+        if (address != null) {
+            return ResponseEntity.ok(address);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -124,15 +111,15 @@ public class SupplierController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteSupplier(@PathVariable Integer id){
-        try {
-            if (supplierRepository.existsById(id)) {
-                supplierRepository.deleteById(id);
-                return ResponseEntity.ok("Supplier with ID " + id +" was successfully deleted");
-            } else {
+        String message = supplierService.removeSupplier(id);
+        if (message != null) {
+            if (message.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Supplier with ID " + id + " was not found");
+            } else {
+                return ResponseEntity.ok(message);
             }
-        } catch (Exception e) {
+        } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Could not delete supplier");
         }
@@ -140,16 +127,15 @@ public class SupplierController {
 
     @DeleteMapping("/{id}/address")
     public ResponseEntity<String> deleteSupplierAddress(@PathVariable Integer id){
-        try {
-            SupplierAddress supplierAddress = supplierAddressRepository.findBySupplier(supplierRepository.getReferenceById(id));
-            if (supplierAddress != null) {
-                supplierAddressRepository.deleteById(supplierAddress.getId());
-                return ResponseEntity.ok("Supplier Address for Supplier with ID " + id +" was successfully deleted");
-            } else {
+        String message = supplierService.removeSupplierAddress(id);
+        if (message != null) {
+            if (message.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Supplier Address for Supplier with ID " + id + " was not found");
+            } else {
+                return ResponseEntity.ok(message);
             }
-        } catch (Exception e) {
+        } else  {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Could not delete supplier address");
         }

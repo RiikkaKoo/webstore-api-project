@@ -17,7 +17,7 @@ http://localhost:8090/api
 | `GET`    | `/customers`              | Hakee kaikki asiakkaat            |
 | `GET`    | `/customers/{id}`         | Hakee asiakkaan ID:n perusteella  |
 | `GET`    | `/customers/{id}/address` | Hakee asiakkaan osoitteet         |
-| `GET`    | `/customers/{id}/orders`  | Hakee asiakkaan tilaukset         |
+| `GET`    | `/customers/{id}/delivery_orders`  | Hakee asiakkaan tilaukset         |
 | `POST`   | `/customers`              | Lisää uuden asiakkaan             |
 | `POST`   | `/customers/{id}/address` | Lisää asiakkaalle uuden osoitteen |
 | `PUT`    | `/customers/{id}`         | Päivittää asiakkaan tiedot        |
@@ -60,14 +60,14 @@ Esimerkkivastaus:
 
 | Metodi   | Päätepiste                              | Kuvaus                           |
 |----------|-----------------------------------------|----------------------------------|
-| `GET`    | `/orders`                               | Hakee kaikki tilaukset           |
-| `GET`    | `/orders/{id}`                          | Hakee tilauksen ID:n perusteella |
-| `GET`    | `/orders/{id]/items`                    | Hakee tilauksen tuotteet         |
-| `POST`   | `/orders`                               | Lisää uuden tilauksen            |
-| `POST`   | `/orders/{id}/items/add/{productId}`    | Lisää uuden tuotteen tilaukseen  |
-| `PUT`    | `/orders/{id}`                          | Päivittää tilauksen tiedot       |
+| `GET`    | `/delivery_orders`                               | Hakee kaikki tilaukset           |
+| `GET`    | `/delivery_orders/{id}`                          | Hakee tilauksen ID:n perusteella |
+| `GET`    | `/delivery_orders/{id]/items`                    | Hakee tilauksen tuotteet         |
+| `POST`   | `/delivery_orders`                               | Lisää uuden tilauksen            |
+| `POST`   | `/delivery_orders/{id}/items/add/{productId}`    | Lisää uuden tuotteen tilaukseen  |
+| `PUT`    | `/delivery_orders/{id}`                          | Päivittää tilauksen tiedot       |
 | `DELETE` | `/products/{id}`                        | Poistaa tilauksen                |
-| `DELETE` | `/orders/{id}/items/remove/{productId}` | Poistaa tuotteen tilauksesta     |
+| `DELETE` | `/delivery_orders/{id}/items/remove/{productId}` | Poistaa tuotteen tilauksesta     |
 
 
 ### Tuotteet (Products)
@@ -76,7 +76,7 @@ Esimerkkivastaus:
 |----------|----------------------|----------------------------------------------------|
 | `GET`    | `/products`          | Hakee kaikki tuotteet                              |
 | `GET`    | `/products/{id}`     | Hakee tuotteen ID:n perusteella                    |
-| `GET`    | `/products/archived` | Hakee valikoimasta poistetut tuotteet              |
+| `GET`    | `/products/active` | Hakee valikoimasta poistetut tuotteet              |
 | `POST`   | `/products`          | Lisää uuden tuotteen                               |
 | `PUT`    | `/products/{id}`     | Päivittää tuotteen tiedot                          |
 | `DELETE` | `/products/{id}`     | Arkistoi tuotteen, eli päivittää sen arkistoiduksi |
@@ -95,10 +95,10 @@ Indekseille on pyritty tehostamaa tauluhin kohdistuvia hakuja. Tähän tietokant
     - Kohdistuu `customers`-taulun `last_name`-kenttään. Indeksillä tehostetaan hakuja, joissa asiakkaita haetaan sukunimen perusteella.
 
 - **idx_orders_orderdate**
-    - Kohdistuu `orders`-taulun `order_date`-kenttään. Tilauksia haetaan ja suodatetaan tilauspäivämäärien mukaan, joten indeksillä pyritään tehostamaan näitä operaatioita.
+    - Kohdistuu `delivery_orders`-taulun `order_date`-kenttään. Tilauksia haetaan ja suodatetaan tilauspäivämäärien mukaan, joten indeksillä pyritään tehostamaan näitä operaatioita.
 
 - **idx_orders_status**
-    - Kohdistuu `orders`-taulun `status`-kenttään. API suodattaa tilauksia niiden tilan perusteella useammassa kohdassa, joten indeksillä pyritään tehostamaan näitä hakuja.
+    - Kohdistuu `delivery_orders`-taulun `status`-kenttään. API suodattaa tilauksia niiden tilan perusteella useammassa kohdassa, joten indeksillä pyritään tehostamaan näitä hakuja.
 
 - **idx_products_price**
     - Kohdistuu `products`-taulun `price`-kenttään. Tuotteita suodatetaan niiden hintojen perusteella, joten indeksin tarkoitus on tehostaa näitä hakuja.
@@ -123,12 +123,12 @@ näkymät ovat joko koostetietoa ja/tai ne on luotu useamman taulun tiedoista, m
 Tietokantaan on toteutettu seuraavat näkymät:
 
 - **orders_stats**
-  - Kerää yhteen koostetietoa orders-, customeraddresses- ja orderitems-tauluista.
+  - Kerää yhteen koostetietoa delivery_orders-, customeraddresses- ja orderitems-tauluista.
   - Laskee kaikkien tilausten lukumäärät ja tuotot maakohtaisesti. Mukaan ei lasketa peruutettuja tilauksia.
   - Näkymästä haetaan tiedot raportteja varten. Raportin voi nähdä oman päätepisteen kautta.
 
 - **order_items**
-  - Kerää yhteen tietoa orders-, orderitems- ja products-tauluista.
+  - Kerää yhteen tietoa delivery_orders-, orderitems- ja products-tauluista.
   - Näkymässä on sarakkeet tilauksen ID:lle, asiakkaan ID:lle, tuotteen ID:lle, tuotteen nimelle, ostetun tuotteen kappalemäärälle ja -hinnalle sekä kokonaishinnalle.
   - Näkymästä voidaan hakea helposti hakea oleellinen tieto tilauksen kaikista tuotteista. GET-metodien JSON-vastaukset ovat yksinkertaisempia ja siistimpiä, 
   kun tieto haetaan näkymästä, sen sijaan, että backend puolella palautettaisiin useita OrderItem-entiteettejä.
@@ -162,7 +162,7 @@ Tietokantaan on toteutettu yksi ajastettu tapahtuma:
 
 Tässä tietokannassa käytetään pääasiassa kirjausaikaan perustuvaa aikaulottuvuutta. Tiettyjen taulujen muutokset kirjataan ylös, milloin taulun tietuetta on muokattu.
 Näin voidaan tarkastella, mitä arvoja tietueella on aikaisemmin ollut tietyllä valillä, ja milloin muutoksia on tapahtunut. Kirjausajan aikaulottuvuus on käytössä
-products-, orders-, customers- ja suppliers-tauluissa. Aikaulottuvuus on otettu käyttöön lisäämällä WITH SYSTEM VERSIONING -määritelmä taulujen perään.
+products-, delivery_orders-, customers- ja suppliers-tauluissa. Aikaulottuvuus on otettu käyttöön lisäämällä WITH SYSTEM VERSIONING -määritelmä taulujen perään.
 
 (Kelpoisuusaika?)
 
