@@ -92,15 +92,17 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProduct(int id, Product updatedProduct){
-        Category category = categoryRepository.getReferenceById(updatedProduct.getCategory().getId());
-        Supplier supplier = supplierRepository.getReferenceById(updatedProduct.getSupplier().getId());
-
+    public Product updateProduct(int id, Product updatedProduct) {
         Product product = productRepository.findById(id);
 
-        product.setName(updatedProduct.getName());
-        product.setDescription(updatedProduct.getDescription());
-        product.setPrice(updatedProduct.getPrice());
+        Category category = categoryRepository.getReferenceById(updatedProduct.getCategory() != null
+                ? updatedProduct.getCategory().getId() : product.getCategory().getId());
+        Supplier supplier = supplierRepository.getReferenceById(updatedProduct.getSupplier() != null
+                ? updatedProduct.getSupplier().getId() : product.getSupplier().getId());
+
+        product.setName(updatedProduct.getName() != null ? updatedProduct.getName() : product.getName());
+        product.setDescription(updatedProduct.getDescription() != null ? updatedProduct.getDescription() : product.getDescription());
+        product.setPrice(updatedProduct.getPrice() != 0 ? updatedProduct.getPrice() : product.getPrice());
         product.setStock_quantity(updatedProduct.getStock_quantity());
         product.setCategory(category);
         product.setSupplier(supplier);
@@ -116,6 +118,9 @@ public class ProductService {
     @Transactional
     public String raiseProductPrices(float percent){
         try {
+            if (percent <= 0) {
+                throw new IllegalArgumentException("Invalid increase percentage");
+            }
             float increase = 1 + (percent/100);
             int changed = productRepository.increasePrice(increase);
             return "Price increased by " + percent + "% for " + changed + " products.";

@@ -53,7 +53,7 @@ public class CustomerService {
 
     public List<Order> findCustomerOrders(int id){
         List<Order> orders = orderRepository.findByCustomer(customerRepository.getReferenceById(id));
-        if (orders != null) {
+        if (orders.isEmpty()) {
             return orders;
         } else {
             return null;
@@ -126,7 +126,7 @@ public class CustomerService {
 
                 customer.setFirst_name("-");
                 customer.setLast_name("-");
-                customer.setEmail("-");
+                customer.setEmail("" + customer.getId());
                 customer.setPhone("-");
                 customerRepository.save(customer);
                 return "SOFT DELETE: Customer with ID " + id +" was successfully set anonymous";

@@ -25,7 +25,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Modifying
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("UPDATE Product p SET p.price = p.price * :increase")
     int increasePrice(@Param("increase") double increase);
 }

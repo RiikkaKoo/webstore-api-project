@@ -90,7 +90,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/price/increase/{percent}")
+    @PutMapping("/price/increase/{percent}")
     public ResponseEntity<String> increaseProductPrices(@PathVariable float percent){
         return ResponseEntity.ok(productService.raiseProductPrices(percent));
     }

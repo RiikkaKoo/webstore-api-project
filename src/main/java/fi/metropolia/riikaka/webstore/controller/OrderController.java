@@ -48,9 +48,9 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/{id}/items/add/{productId}")
-    public ResponseEntity<OrderItemDTO> postProductToOrder(@PathVariable int id, @PathVariable int productId, @RequestBody OrderItem newOrderItem) {
-        OrderItemDTO orderItem = orderService.addProductToOrder(id, productId, newOrderItem);
+    @PostMapping("/{id}/items/add")
+    public ResponseEntity<OrderItemDTO> postProductToOrder(@PathVariable int id, @RequestBody ItemDTO newOrderItem) {
+        OrderItemDTO orderItem = orderService.addProductToOrder(id, newOrderItem);
         if (orderItem == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } else {
@@ -75,8 +75,8 @@ public class OrderController {
     }
 
     @PostMapping("/pickup")
-    public ResponseEntity<Order> postPickupOrder(@RequestBody PickUpOrderDTO newOrder) {
-        Order order = orderService.addPickupOrder(newOrder);
+    public ResponseEntity<PickUpOrderDTO> postPickupOrder(@RequestBody PickUpOrderDTO newOrder) {
+        PickUpOrderDTO order = orderService.addPickupOrder(newOrder);
         if (order == null){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } else {
@@ -85,8 +85,8 @@ public class OrderController {
     }
 
     @PostMapping("/delivery")
-    public ResponseEntity<Order> postDeliveryOrder(@RequestBody DeliveryOrderDTO newOrder) {
-        Order order = orderService.addDeliveryOrder(newOrder);
+    public ResponseEntity<DeliveryOrderDTO> postDeliveryOrder(@RequestBody DeliveryOrderDTO newOrder) {
+        DeliveryOrderDTO order = orderService.addDeliveryOrder(newOrder);
         if (order == null){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } else {

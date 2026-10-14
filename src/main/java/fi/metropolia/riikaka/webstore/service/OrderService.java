@@ -61,10 +61,20 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderItemDTO addProductToOrder(int id, int productId, OrderItem newOrderItem) {
+    public OrderItemDTO addProductToOrder(int id, ItemDTO newOrderItem) {
         try {
             // Decrease stock
-            Product product = productRepository.findById(productId);
+            Product product = productRepository.findById(newOrderItem.getProduct_id());
+            if (product == null) {
+                throw new EntityNotFoundException(
+                        "Product with ID " + newOrderItem.getProduct_id() + " was not found"
+                );
+            }
+            if (newOrderItem.getQuantity() <= 0 || newOrderItem.getQuantity() > 100) {
+                throw new IllegalArgumentException(
+                        "Invalid quantity was given"
+                );
+            }
             int new_stock_quantity = product.getStock_quantity() - newOrderItem.getQuantity();
             if (new_stock_quantity < 0) {
                 throw new IllegalArgumentException(
@@ -79,7 +89,7 @@ public class OrderService {
             OrderItem orderItem = new OrderItem(orderItemId, newOrderItem.getQuantity(), product.getPrice());
             OrderItem saved = orderItemRepository.save(orderItem);
 
-            OrderItemDTO response = new OrderItemDTO(id, productId, productRepository.findById(productId).getName(), saved.getQuantity(), saved.getUnit_price());
+            OrderItemDTO response = new OrderItemDTO(id, newOrderItem.getProduct_id(), productRepository.findById(newOrderItem.getProduct_id()).getName(), saved.getQuantity(), saved.getUnit_price());
             return response;
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,7 +110,7 @@ public class OrderService {
                 productRepository.save(product);
 
                 orderItemRepository.deleteById(orderItemId);
-                return "Product with ID " + productId +" was successfully removed from order " + id;
+                return "Product with ID " + productId +" was successfully removed from order with ID " + id;
             } else {
                 return "";
             }
@@ -111,7 +121,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order addPickupOrder(PickUpOrderDTO newOrder) {
+    public PickUpOrderDTO addPickupOrder(PickUpOrderDTO newOrder) {
         try {
             PickUpOrder order = new PickUpOrder();
             order.setCustomer(newOrder.getCustomer());
@@ -146,7 +156,10 @@ public class OrderService {
                 orderItemRepository.save(orderItem);
             }
 
-            return orderRepository.save(addedOrder);
+            newOrder.setFinal_pickup_date(order.getFinal_pickup_date());
+            newOrder.setCustomer(order.getCustomer());
+            orderRepository.save(addedOrder);
+            return newOrder;
         } catch (Exception e) {
             e.printStackTrace();
             throw (e);
@@ -154,7 +167,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order addDeliveryOrder(DeliveryOrderDTO newOrder) {
+    public DeliveryOrderDTO addDeliveryOrder(DeliveryOrderDTO newOrder) {
         try {
             DeliveryOrder order = new DeliveryOrder(null, newOrder.getStreet_address(), newOrder.getPostal_code(), newOrder.getCity(), newOrder.getCountry());
             order.setCustomer(newOrder.getCustomer());
@@ -188,7 +201,8 @@ public class OrderService {
                 orderItemRepository.save(orderItem);
             }
 
-            return orderRepository.save(addedOrder);
+            orderRepository.save(addedOrder);
+            return newOrder;
         } catch (Exception e) {
             e.printStackTrace();
             throw (e);
