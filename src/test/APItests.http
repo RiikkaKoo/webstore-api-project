@@ -139,20 +139,6 @@ Content-Type: application/json
   ]
 }
 
-### delivery order post test
-POST http://127.0.0.1:8090/api/orders/delivery
-Content-Type: application/json
-
-{
-  "street_address": "UusiLisäystesti",
-  "country": "UusiLisäystesti",
-  "postal_code": "11111",
-  "city": "UusiLisäystesti",
-  "customer" : {
-    "id" : 1
-  }
-}
-
 ### delivery order post v2 test
 POST http://127.0.0.1:8090/api/orders/delivery
 Content-Type: application/json
@@ -167,6 +153,24 @@ Content-Type: application/json
   },
   "items": [
     {"product_id": 4, "quantity": 3},
+    {"product_id": 10, "quantity": 2}
+  ]
+}
+
+### delivery order post v2 test fail
+POST http://127.0.0.1:8090/api/orders/delivery
+Content-Type: application/json
+
+{
+  "street_address": "UusiLisäystesti",
+  "country": "UusiLisäystesti",
+  "postal_code": "11111",
+  "city": "UusiLisäystesti",
+  "customer" : {
+    "id" : 1
+  },
+  "items": [
+    {"product_id": -4, "quantity": 5},
     {"product_id": 10, "quantity": 2}
   ]
 }

@@ -2,6 +2,7 @@ package fi.metropolia.riikaka.webstore.service;
 
 import fi.metropolia.riikaka.webstore.entity.*;
 import fi.metropolia.riikaka.webstore.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -120,6 +121,16 @@ public class OrderService {
             for (ItemDTO i : newOrder.getItems()) {
                 // Decrease stock
                 Product product = productRepository.findById(i.getProduct_id());
+                if (product == null) {
+                    throw new EntityNotFoundException(
+                            "Product with ID " + i.getProduct_id() + " was not found"
+                    );
+                }
+                if (i.getQuantity() <= 0 || i.getQuantity() > 100) {
+                    throw new IllegalArgumentException(
+                            "Invalid quantity was given"
+                    );
+                }
                 int new_stock_quantity = product.getStock_quantity() - i.getQuantity();
                 if (new_stock_quantity < 0) {
                     throw new IllegalArgumentException(
@@ -152,6 +163,16 @@ public class OrderService {
             for (ItemDTO i : newOrder.getItems()) {
                 // Decrease stock
                 Product product = productRepository.findById(i.getProduct_id());
+                if (product == null) {
+                    throw new EntityNotFoundException(
+                            "Product with ID " + i.getProduct_id() + " was not found"
+                    );
+                }
+                if (i.getQuantity() <= 0 || i.getQuantity() > 100) {
+                    throw new IllegalArgumentException(
+                            "Invalid quantity was given"
+                    );
+                }
                 int new_stock_quantity = product.getStock_quantity() - i.getQuantity();
                 if (new_stock_quantity < 0) {
                     throw new IllegalArgumentException(
