@@ -32,14 +32,14 @@ CREATE TABLE IF NOT EXISTS `contacts` (
 -- Dumping structure for taulu webstore.customeraddresses
 CREATE TABLE IF NOT EXISTS `customeraddresses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_id` int(11) NOT NULL UNIQUE,
+  `customer` int(11) NOT NULL UNIQUE,
   `street_address` varchar(255) NOT NULL,
   `postal_code` varchar(20) NOT NULL,
   `city` varchar(100) NOT NULL,
   `country` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_customeraddress_customer` (`customer_id`),
-  CONSTRAINT `fk_customeraddress_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_customeraddress_customer` (`customer`),
+  CONSTRAINT `fk_customeraddress_customer` FOREIGN KEY (`customer`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tietojen vientiä ei oltu valittu.
@@ -81,12 +81,12 @@ CREATE TABLE IF NOT EXISTS `orderitems` (
 CREATE TABLE IF NOT EXISTS `orders` (
   `DTYPE` varchar(50),
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_id` int(11) NOT NULL,
+  `customer` int(11) NOT NULL,
   `order_date` datetime NOT NULL DEFAULT current_timestamp(),
   `status` varchar(50) NOT NULL DEFAULT 'NEW',
   PRIMARY KEY (`id`),
-  KEY `fk_order_customer` (`customer_id`),
-  CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_order_customer` (`customer`),
+  CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITH SYSTEM VERSIONING ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tietojen vientiä ei oltu valittu.
@@ -274,7 +274,7 @@ ORDER BY suppliers.id;
 CREATE VIEW order_items AS
 SELECT 
 orders.id AS order_id,
-orders.customer_id,
+orders.customer,
 products.id AS product_id, 
 products.name AS product_name, 
 orderitems.quantity,

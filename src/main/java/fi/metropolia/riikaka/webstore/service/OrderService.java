@@ -4,7 +4,6 @@ import fi.metropolia.riikaka.webstore.entity.*;
 import fi.metropolia.riikaka.webstore.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,8 +19,8 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     public OrderService (OrderRepository orderRepository, OrderItemRepository orderItemRepository,
-                           ProductRepository productRepository, OrderItemsViewRepository orderItemsViewRepository,
-                           PickupOrderRepository pickupOrderRepository, DeliveryOrderRepository deliveryOrderRepository) {
+                         ProductRepository productRepository, OrderItemsViewRepository orderItemsViewRepository,
+                         PickupOrderRepository pickupOrderRepository, DeliveryOrderRepository deliveryOrderRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
@@ -110,20 +109,68 @@ public class OrderService {
         }
     }
 
-    public Order addPickupOrder(PickUpOrder newOrder) {
+    @Transactional
+    public Order addPickupOrder(PickUpOrderDTO newOrder) {
         try {
-            newOrder.setFinal_pickup_date(LocalDate.now().plusWeeks(2));
-            return orderRepository.save(newOrder);
+            PickUpOrder order = new PickUpOrder();
+            order.setCustomer(newOrder.getCustomer());
+            order.setFinal_pickup_date(LocalDate.now().plusWeeks(2));
+            Order addedOrder = orderRepository.save(order);
+
+            for (ItemDTO i : newOrder.getItems()) {
+                // Decrease stock
+                Product product = productRepository.findById(i.getProduct_id());
+                int new_stock_quantity = product.getStock_quantity() - i.getQuantity();
+                if (new_stock_quantity < 0) {
+                    throw new IllegalArgumentException(
+                            "Not enough stock"
+                    );
+                }
+                product.setStock_quantity(new_stock_quantity);
+                Product updatedProduct = productRepository.save(product);
+
+                // Save item to order
+                OrderItemId orderItemId = new OrderItemId(orderRepository.getReferenceById(addedOrder.getId()), updatedProduct);
+                OrderItem orderItem = new OrderItem(orderItemId, i.getQuantity(), product.getPrice());
+                orderItemRepository.save(orderItem);
+            }
+
+            return orderRepository.save(addedOrder);
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
+            throw (e);
         }
     }
 
-    public Order addDeliveryOrder(DeliveryOrder newOrder) {
+    @Transactional
+    public Order addDeliveryOrder(DeliveryOrderDTO newOrder) {
         try {
-            return orderRepository.save(newOrder);
+            DeliveryOrder order = new DeliveryOrder(null, newOrder.getStreet_address(), newOrder.getPostal_code(), newOrder.getCity(), newOrder.getCountry());
+            order.setCustomer(newOrder.getCustomer());
+            Order addedOrder = orderRepository.save(order);
+
+            for (ItemDTO i : newOrder.getItems()) {
+                // Decrease stock
+                Product product = productRepository.findById(i.getProduct_id());
+                int new_stock_quantity = product.getStock_quantity() - i.getQuantity();
+                if (new_stock_quantity < 0) {
+                    throw new IllegalArgumentException(
+                            "Not enough stock"
+                    );
+                }
+                product.setStock_quantity(new_stock_quantity);
+                Product updatedProduct = productRepository.save(product);
+
+                // Save item to order
+                OrderItemId orderItemId = new OrderItemId(orderRepository.getReferenceById(addedOrder.getId()), updatedProduct);
+                OrderItem orderItem = new OrderItem(orderItemId, i.getQuantity(), product.getPrice());
+                orderItemRepository.save(orderItem);
+            }
+
+            return orderRepository.save(addedOrder);
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
+            throw (e);
         }
     }
 

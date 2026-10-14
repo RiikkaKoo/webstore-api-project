@@ -132,8 +132,11 @@ Content-Type: application/json
   "customer": {
     "id": 2
   },
-  "final_pickup_date": "",
-  "pickup_location": "Vantaa"
+  "pickup_location": "Vantaa",
+  "items": [
+    {"product_id": 6, "quantity": 4},
+    {"product_id": 23, "quantity": 1}
+  ]
 }
 
 ### delivery order post test
@@ -150,8 +153,26 @@ Content-Type: application/json
   }
 }
 
+### delivery order post v2 test
+POST http://127.0.0.1:8090/api/orders/delivery
+Content-Type: application/json
+
+{
+  "street_address": "UusiLisäystesti",
+  "country": "UusiLisäystesti",
+  "postal_code": "11111",
+  "city": "UusiLisäystesti",
+  "customer" : {
+    "id" : 1
+  },
+  "items": [
+    {"product_id": 4, "quantity": 3},
+    {"product_id": 10, "quantity": 2}
+  ]
+}
+
 ### delivery order put test
-PUT http://127.0.0.1:8090/api/delivery_orders/delivery/39
+PUT http://127.0.0.1:8090/api/orders/delivery/39
 Content-Type: application/json
 
 {
@@ -160,7 +181,7 @@ Content-Type: application/json
 }
 
 ### pickup order put test
-PUT http://127.0.0.1:8090/api/delivery_orders/pickup/41
+PUT http://127.0.0.1:8090/api/orders/pickup/45
 Content-Type: application/json
 
 {

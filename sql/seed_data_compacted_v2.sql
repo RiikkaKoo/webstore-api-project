@@ -51,7 +51,7 @@ INSERT INTO `customers` (`id`, `first_name`, `last_name`, `email`, `phone`) VALU
 	(49, 'Kyle', 'Ferguson', 'angelanorris49@example.com', '283.353.8541'),
 	(50, 'Jose', 'Copeland', 'smiller50@example.org', '611-796-4860');
 	
-	INSERT INTO `customeraddresses` (`id`, `customer_id`, `street_address`, `postal_code`, `city`, `country`) VALUES
+	INSERT INTO `customeraddresses` (`id`, `customer`, `street_address`, `postal_code`, `city`, `country`) VALUES
 	(1, 1, '39650 Harrington Plains Suite 474', '95942', 'Larryview', 'Guadeloupe'),
 	(2, 2, '3793 Henderson Islands', '47618', 'Lake Tyler', 'Antarctica (the territory South of 60 deg S)'),
 	(3, 3, '8349 Mcconnell Field', '05584', 'Port Elizabethfurt', 'Zimbabwe'),
@@ -1325,7 +1325,7 @@ INSERT INTO `products` (`id`, `name`, `description`, `price`, `stock_quantity`, 
 	(1000, 'Smart Blade 164', 'Huge range just end executive dream huge subject say himself.', 786.74, 164, 9, 76);
 	
 	-- Dumping data for table webstore.orders: ~199 458 rows (suunnilleen)
-INSERT INTO `orders` (`DTYPE`, `id`, `customer_id`, `order_date`, `status`) VALUES
+INSERT INTO `orders` (`DTYPE`, `id`, `customer`, `order_date`, `status`) VALUES
 	('PickUpOrder', 1, 50, '2024-04-03 17:51:08', 'CANCELLED'),
 	('PickUpOrder', 2, 1, '2024-06-22 23:08:14', 'CANCELLED'),
 	('PickUpOrder', 3, 4, '2023-11-11 18:00:57', 'NEW'),

@@ -75,7 +75,7 @@ public class OrderController {
     }
 
     @PostMapping("/pickup")
-    public ResponseEntity<Order> postPickupOrder(@RequestBody PickUpOrder newOrder) {
+    public ResponseEntity<Order> postPickupOrder(@RequestBody PickUpOrderDTO newOrder) {
         Order order = orderService.addPickupOrder(newOrder);
         if (order == null){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -85,7 +85,7 @@ public class OrderController {
     }
 
     @PostMapping("/delivery")
-    public ResponseEntity<Order> postDeliveryOrder(@RequestBody DeliveryOrder newOrder) {
+    public ResponseEntity<Order> postDeliveryOrder(@RequestBody DeliveryOrderDTO newOrder) {
         Order order = orderService.addDeliveryOrder(newOrder);
         if (order == null){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
