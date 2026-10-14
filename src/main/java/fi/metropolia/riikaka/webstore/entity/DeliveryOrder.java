@@ -10,15 +10,20 @@ public class DeliveryOrder extends Order {
 
     @Column(insertable = false)
     private LocalDateTime delivery_date;
-    @ManyToOne(fetch= FetchType.LAZY, optional = false)
-    private CustomerAddress shipping_address;
+    private String street_address;
+    private String postal_code;
+    private String city;
+    private String country;
 
     public DeliveryOrder() {
     }
 
-    public DeliveryOrder(LocalDateTime delivery_date, CustomerAddress shipping_address) {
+    public DeliveryOrder(LocalDateTime delivery_date, String street_address, String postal_code, String city, String country) {
         this.delivery_date = delivery_date;
-        this.shipping_address = shipping_address;
+        this.street_address = street_address;
+        this.postal_code = postal_code;
+        this.city = city;
+        this.country = country;
     }
 
     public LocalDateTime getDelivery_date() {
@@ -29,11 +34,35 @@ public class DeliveryOrder extends Order {
         this.delivery_date = delivery_date;
     }
 
-    public CustomerAddress getShipping_address() {
-        return shipping_address;
+    public String getStreet_address() {
+        return street_address;
     }
 
-    public void setShipping_address(CustomerAddress shipping_address) {
-        this.shipping_address = shipping_address;
+    public void setStreet_address(String street_address) {
+        this.street_address = street_address;
+    }
+
+    public String getPostal_code() {
+        return postal_code;
+    }
+
+    public void setPostal_code(String postal_code) {
+        this.postal_code = postal_code;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }

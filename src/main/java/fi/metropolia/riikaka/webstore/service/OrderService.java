@@ -130,9 +130,9 @@ public class OrderService {
     @Transactional
     public PickUpOrder updatePickupOrder(int id, PickUpOrder updatedOrder) {
         PickUpOrder pickUpOrder = pickupOrderRepository.getReferenceById(id);
-        pickUpOrder.setStatus(updatedOrder.getStatus());
-        pickUpOrder.setFinal_pickup_date(updatedOrder.getFinal_pickup_date());
-        pickUpOrder.setPickup_location(updatedOrder.getPickup_location());
+        pickUpOrder.setStatus(updatedOrder.getStatus() != null ? updatedOrder.getStatus() : pickUpOrder.getStatus());
+        pickUpOrder.setFinal_pickup_date(updatedOrder.getFinal_pickup_date() != null ? updatedOrder.getFinal_pickup_date() : pickUpOrder.getFinal_pickup_date());
+        pickUpOrder.setPickup_location(updatedOrder.getPickup_location() != null ? updatedOrder.getPickup_location() : pickUpOrder.getPickup_location());
         try {
             return orderRepository.save(pickUpOrder);
         } catch (Exception e) {
@@ -144,8 +144,12 @@ public class OrderService {
     @Transactional
     public DeliveryOrder updateDeliveryOrder(int id, DeliveryOrder updatedOrder) {
         DeliveryOrder deliveryOrder = deliveryOrderRepository.getReferenceById(id);
-        deliveryOrder.setStatus(updatedOrder.getStatus());
-        deliveryOrder.setDelivery_date(updatedOrder.getDelivery_date());
+        deliveryOrder.setStatus(updatedOrder.getStatus() != null ? updatedOrder.getStatus() : deliveryOrder.getStatus());
+        deliveryOrder.setDelivery_date(updatedOrder.getDelivery_date() != null ? updatedOrder.getDelivery_date() : deliveryOrder.getDelivery_date());
+        deliveryOrder.setStreet_address(updatedOrder.getStreet_address() != null ? updatedOrder.getStreet_address() : deliveryOrder.getStreet_address());
+        deliveryOrder.setCity(updatedOrder.getCity() != null ? updatedOrder.getCity() : deliveryOrder.getCity());
+        deliveryOrder.setPostal_code(updatedOrder.getPostal_code() != null ? updatedOrder.getPostal_code() : deliveryOrder.getPostal_code());
+        deliveryOrder.setCountry(updatedOrder.getCountry() != null ? updatedOrder.getCountry() : deliveryOrder.getCountry());
         try {
             return orderRepository.save(deliveryOrder);
         } catch (Exception e) {

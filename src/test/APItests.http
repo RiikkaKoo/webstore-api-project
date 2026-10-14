@@ -30,7 +30,7 @@ Content-Type: application/json
 }
 
 ### customer delete test
-DELETE http://127.0.0.1:8090/api/customers/55
+DELETE http://127.0.0.1:8090/api/customers/4
 Content-Type: application/json
 
 ### customer delete fail test
@@ -125,14 +125,11 @@ Content-Type: application/json
 #----------------------------------------------------------------------------------------------#
 
 ### pickup order post test
-POST http://127.0.0.1:8090/api/delivery_orders/pickup
+POST http://127.0.0.1:8090/api/orders/pickup
 Content-Type: application/json
 
 {
   "customer": {
-    "id": 2
-  },
-  "shipping_address": {
     "id": 2
   },
   "final_pickup_date": "",
@@ -140,15 +137,16 @@ Content-Type: application/json
 }
 
 ### delivery order post test
-POST http://127.0.0.1:8090/api/delivery_orders/delivery
+POST http://127.0.0.1:8090/api/orders/delivery
 Content-Type: application/json
 
 {
-  "customer": {
-    "id": 1
-  },
-  "shipping_address": {
-    "id": 1
+  "street_address": "UusiLisäystesti",
+  "country": "UusiLisäystesti",
+  "postal_code": "11111",
+  "city": "UusiLisäystesti",
+  "customer" : {
+    "id" : 1
   }
 }
 

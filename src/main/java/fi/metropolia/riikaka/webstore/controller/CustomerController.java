@@ -123,7 +123,7 @@ public class CustomerController {
             }
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Could not delete customer");
+                    .body("Could not soft delete customer");
         }
     }
 

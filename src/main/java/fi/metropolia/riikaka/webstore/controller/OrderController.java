@@ -114,6 +114,7 @@ public class OrderController {
         }
     }
 
+    /*
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrder(@PathVariable Integer id) {
         String message = orderService.removeOrder(id);
@@ -129,5 +130,6 @@ public class OrderController {
                     .body("Could not delete order");
         }
     }
+    */
 
 }

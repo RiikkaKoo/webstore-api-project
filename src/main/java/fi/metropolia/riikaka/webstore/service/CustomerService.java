@@ -120,8 +120,16 @@ public class CustomerService {
     public String removeCustomer(int id){
         try {
             if (customerRepository.existsById(id)) {
-                customerRepository.deleteById(id);
-                return "Customer with ID " + id +" was successfully deleted";
+
+                Customer customer = customerRepository.getReferenceById(id);
+                customerAddressRepository.deleteByCustomer(customer);
+
+                customer.setFirst_name("-");
+                customer.setLast_name("-");
+                customer.setEmail("-");
+                customer.setPhone("-");
+                customerRepository.save(customer);
+                return "SOFT DELETE: Customer with ID " + id +" was successfully set anonymous";
             } else {
                 return "";
             }
