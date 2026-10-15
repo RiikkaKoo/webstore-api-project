@@ -93,21 +93,21 @@ public class ProductService {
 
     @Transactional
     public Product updateProduct(int id, Product updatedProduct) {
-        Product product = productRepository.findById(id);
+        try {
+            Product product = productRepository.findById(id);
 
-        Category category = categoryRepository.getReferenceById(updatedProduct.getCategory() != null
+            Category category = categoryRepository.getReferenceById(updatedProduct.getCategory() != null
                 ? updatedProduct.getCategory().getId() : product.getCategory().getId());
-        Supplier supplier = supplierRepository.getReferenceById(updatedProduct.getSupplier() != null
+            Supplier supplier = supplierRepository.getReferenceById(updatedProduct.getSupplier() != null
                 ? updatedProduct.getSupplier().getId() : product.getSupplier().getId());
 
-        product.setName(updatedProduct.getName() != null ? updatedProduct.getName() : product.getName());
-        product.setDescription(updatedProduct.getDescription() != null ? updatedProduct.getDescription() : product.getDescription());
-        product.setPrice(updatedProduct.getPrice() != 0 ? updatedProduct.getPrice() : product.getPrice());
-        product.setStock_quantity(updatedProduct.getStock_quantity());
-        product.setCategory(category);
-        product.setSupplier(supplier);
-        product.setActive(updatedProduct.isActive());
-        try {
+            product.setName(updatedProduct.getName() != null ? updatedProduct.getName() : product.getName());
+            product.setDescription(updatedProduct.getDescription() != null ? updatedProduct.getDescription() : product.getDescription());
+            product.setPrice(updatedProduct.getPrice() != 0 ? updatedProduct.getPrice() : product.getPrice());
+            product.setStock_quantity(updatedProduct.getStock_quantity());
+            product.setCategory(category);
+            product.setSupplier(supplier);
+            product.setActive(updatedProduct.isActive());
             return productRepository.save(product);
         } catch (Exception e) {
             e.printStackTrace();

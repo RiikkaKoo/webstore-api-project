@@ -1,5 +1,19 @@
 # VERKKOKAUPPA TIETOKANTA & API HARJOITUSTYÖ
 
+Tämä on repositorio Tietokantaratkaisut-kurssilla tehdylle tietokanta- ja API-projektille. 
+Projektissa tehtiin toteutettiin tietokanta ja backend-palvelu kuvitteeliselle verkkokaupalle käyttäen SQL- ja Java-koodikieliä. 
+Tietokanta on suunniteltu käyttettäväksi MariaDB tietokannanhallintajärjestelmällä, ja backend REST API-taustapalvelu on toteutettu Spring Boot frameworkilla.
+
+REST API-taustapalvelu on tarkoitettu verkkokaupan työntekijöiden ja ylläpitäjien käyttöön eikä niinkään itse verkkokaupan API:ksi. Se on siis suunniteltu siten,
+että verkkokaupalla olisi erillinen sovellus/verkkosivu, josta vain työntekijät pääisisivät tekemään kutsuja taustapalveluun. Tässä projektissa ei siis tarkemmin
+määritetä autentikointi- ja autorisointitoimintoja API-pyynnöille backendissa, vaikka ne lopulliseen järjestelmään toteutettaisiin.
+
+Koska REST API-taustapalvelu on tarkoitettu verkkokaupan työntekijöille, on taustapalvelun kautta mahdollista nähdä muokata tietokannan dataa sekä joidenkin taulujen
+kohdalla myös poistaa tietoa. Haettu tieto on myös yksityiskohtaisempaa, eli mm. haetun tuotteen mukana tulee tietoa myös sen toimittajasta. 
+Työntekijöille siis tarjotaan enemmän vapauksia tietokannan tiedon käsittelyyn.
+
+Tämä dokumentti keroo, miten tietokantajärjestelmän voi ottaa käyttöön, ja esittelee taustapalvelun API-päätepisteet sekä tietokannanominaisuudet. 
+
 **SISÄLTÖ** </br>
 
 - [ALOITUS](#aloitus)
@@ -13,10 +27,60 @@
   - [Temporaaliominaisuudet](#temporaaliominaisuudet)
   - [Tietoturva](#tietoturva)
 
+---
 
 ## ALOITUS
 
+---
+
+### Tietokanta
+
+Tietokanta on suunniteltu käytettäväksi MariaDB-tietokannanhallintajärjestelmällä. 
+Kansiossa, jonka nimi on `sql`, on tietokannan luontiin tarvittavat sql-tiedostot.
+
+Tietokanta luodaan kansiosta löytyvällä sql-skriptillä. Tiedoston nimi on `web_store_script.sql`. Suorittamalla skriptin
+MariaDB:ssä tietokannan taulut ja muut rakenteet luodaan.
+
+Luo tietokantakäyttäjä, jolla on pääsy `web_store` tietokantaan, käyttäen `web_store_user.sql`-tiedoston komentoja, tai kopiomalla ne suoraan tästä:
+```sql
+CREATE USER 'webstore'@'localhost' IDENTIFIED BY 'webstore_password';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON web_store.* TO
+    'webstore'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+Kansiossa on myös tiedosto, jossa on mallidataa tietokannan täyttöön, jos haluaa kokeilla ja testata tietokannan toimintaa. 
+Mallidata on `seed_data_compacted_v2.sql`-tiedostossa.
+
+Sql-tiedostoja voi suorittaa suoraan MariaDB:n kautta `SOURCE`-komennolla:
+```sql
+SOURCE C:/filepath/web_store_script.sql;
+SOURCE C:/filepath/web_store_user.sql;
+SOURCE C:/filepath/seed_data_compacted_v2.sql;
+```
+Tallenna tiedostot omalle koneelle, ja muuta tiedoston osoite oikeaksi.
+
+---
+
+### REST API-taustapalvelu
+
+Kopio GitHub-repositorio omalle koneellesi:
+```
+git clone https://github.com/RiikkaKoo/webstore-api-project.git
+```
+
+Suorita `WebstoreApplication`-luokan koodi. Tämä käynnistää taustapalvelun.
+
+API-päätepisteiden GET-pyyntöjä voi testa selaimen kautta osoitteessta http://localhost:8090/api, mutta POST-, UPDATE- ja DELETE-pyyntöjä varten tarvitaan
+frontend-sovellus, jota ei ole tässä projektissa toteutettu. Näitä komentoja voi kuitenkin testata `test`-kansion `APItests.http`-tiedoston tai `controller`-paketin luokkien kautta. 
+Controller-luokkien metodien yhteydessä on maapallokuvake, joka luo http-pyynnön, jonka voi suorittaa.
+
+---
+
 ## API-PÄÄTEPISTEET
+
+---
 
 Base URL: </br>
 http://localhost:8090/api
@@ -2165,6 +2229,8 @@ Onnistunut pyyntö (200) - Esimerkkivastaus:
 
 ## TIETOKANNAN OMINAISUUDET
 
+---
+
 ### Indeksit
 
 Indekseille on pyritty tehostamaa tauluhin kohdistuvia hakuja. Tähän tietokantaan on toteutettu seuraavat indeksit:
@@ -2190,9 +2256,24 @@ Indekseille on pyritty tehostamaa tauluhin kohdistuvia hakuja. Tähän tietokant
 - **idx_supplieraddresses_country**
     - Kohdistuu `supplieraddresses`-taulun `country`-kenttään. Raportteja varten haetaan toimittajia heidän sijaintimaidensa perusteella, joten indeksillä pyritään tehostamaan suodatusta.
 
-
+---
 
 ### Transaktiot
+
+Tietokantajärjestelmä sisältää transaktioita erityisesti products-tauluun kohdistuvien pyyntöjen yhteydessä. 
+Transaktiolla varmistetaan, että peräkkäiset operaatiot toteutetaan oikein ja kokonaisuudessaan ilman muiden operaatioiden tai transaktioiden häirintää. 
+Transaktiolla ja lukoilla voidaan mm. varmistaa, etteivät muut transaktiot pääse lukemaan tai muokkamaan saman tuotteen tietoja samaan aikaan.
+Mikäli jokin transaktion operaatio epäonnistuu muut transaktion operaatiot peruutetaan, ettei tietokantaan jää virheellistä dataa.
+
+Järjestelmä käyttää transaktioita erityisesti seuraavissa tilanteissa:
+
+- Uuden tilauksen luonti. Tämä transaktio sisältää vähintää kolme muokkausoperaatiota: tietueen lisääminen orders-tauluun, tuotteen kappalemäärän pienentäminen products-taulussa ja uuden tietueen lisääminen orderitems-tauluun.
+- Yksittäisen tuotteen lisääminen tilaukseen. Tämä transaktio sisältää kaksi muokkausoperaatiota: tuotteen kappalemäärän pienentäminen products-taulussa ja uuden tietueen lisääminen orderitems-tauluun.
+- Tuotteen varasto päivitys. Tämä transaktio sisältää vain yhden operaation: tuotteen kappalemäärän muuttaminen products-taulussa. Transaktiolla ja lukoilla halutaan kuitenkin varmistaa, etteivät muut operaatiot lue tai päivitä tuotteen tietoja samaan aikaan.
+
+Transaktiot on toteutettu taustapalvelussa @Transactional-annotaatioiden ja @Lock-annotaatioiden, jotka asettavat kirjoituslukkoja tietokannassa, avulla.
+
+---
 
 ### Näkymät
 
@@ -2219,6 +2300,8 @@ Tietokantaan on toteutettu seuraavat näkymät:
   - Näkymässä on sarakkeet tuotteen ID:lle, tuotteen nimelle, tuotteen lukumäärälle, eli varastolle, toimittajan ID:lle sekä toimittajan yhteys- ja osoitetiedoille.
   - Näkymästä voidaan hakea mm. tietoa toimittajan tuotteista ja vähissä olevan tuotteen toimittajan tiedot. Näkymää käytetään raportteja varten, joita voi tarkastella päätepisteiden kautta.
 
+---
+
 ### Liipaisimet
 
 Tietokannan eheydestä huolehditaan pääasiassa eheysrajoitteiden avulla, eli eri ON DELETE- ja ON UPDATE-määritelmät tietokannan taulujen viiteavainten määrrittelyn yhteydessä.
@@ -2231,6 +2314,8 @@ Tietokantaan on kuitenkin toteutettu yksi liipaisin:
   - Liipaisin tarkistaa, että products-taulun stock_quantity sarakkeeseen ei yritetä syöttää negatiivista arvoa. 
   Jos syötettävä arvo on negatiivinen, liipaisin heittää virhekoodin.
 
+---
+
 ### Tapahtumat
 
 Tietokantaan on toteutettu yksi ajastettu tapahtuma: 
@@ -2239,13 +2324,15 @@ Tietokantaan on toteutettu yksi ajastettu tapahtuma:
   - Tapahtuu pävittäin vuorokaudenvaihteessa, eli klo. 00.00.
   - Lisää daily_sales-tauluun raportin päivämäärän, päivän tuotot ja tilausten lukumäärän. Ei laske mukaan peruutettuja tilauksia.
 
+---
+
 ### Temporaaliominaisuudet
 
 Tässä tietokannassa käytetään pääasiassa kirjausaikaan perustuvaa aikaulottuvuutta. Tiettyjen taulujen muutokset kirjataan ylös, milloin taulun tietuetta on muokattu.
 Näin voidaan tarkastella, mitä arvoja tietueella on aikaisemmin ollut tietyllä valillä, ja milloin muutoksia on tapahtunut. Kirjausajan aikaulottuvuus on käytössä
 products-, delivery_orders-, customers- ja suppliers-tauluissa. Aikaulottuvuus on otettu käyttöön lisäämällä WITH SYSTEM VERSIONING -määritelmä taulujen perään.
 
-(Kelpoisuusaika?)
+---
 
 ### Tietoturva
 

@@ -229,11 +229,11 @@ public class OrderService {
 
     @Transactional
     public PickUpOrder updatePickupOrder(int id, PickUpOrder updatedOrder) {
-        PickUpOrder pickUpOrder = pickupOrderRepository.getReferenceById(id);
-        pickUpOrder.setStatus(updatedOrder.getStatus() != null ? updatedOrder.getStatus() : pickUpOrder.getStatus());
-        pickUpOrder.setFinal_pickup_date(updatedOrder.getFinal_pickup_date() != null ? updatedOrder.getFinal_pickup_date() : pickUpOrder.getFinal_pickup_date());
-        pickUpOrder.setPickup_location(updatedOrder.getPickup_location() != null ? updatedOrder.getPickup_location() : pickUpOrder.getPickup_location());
         try {
+            PickUpOrder pickUpOrder = pickupOrderRepository.getReferenceById(id);
+            pickUpOrder.setStatus(updatedOrder.getStatus() != null ? updatedOrder.getStatus() : pickUpOrder.getStatus());
+            pickUpOrder.setFinal_pickup_date(updatedOrder.getFinal_pickup_date() != null ? updatedOrder.getFinal_pickup_date() : pickUpOrder.getFinal_pickup_date());
+            pickUpOrder.setPickup_location(updatedOrder.getPickup_location() != null ? updatedOrder.getPickup_location() : pickUpOrder.getPickup_location());
             return orderRepository.save(pickUpOrder);
         } catch (Exception e) {
             e.printStackTrace();
