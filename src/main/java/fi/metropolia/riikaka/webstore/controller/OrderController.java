@@ -28,6 +28,26 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/pickup")
+    public ResponseEntity<List<PickUpOrder>> getPickupOrders() {
+        List<PickUpOrder> orders = orderService.findAllPickupOrders();
+        if (orders == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(orders);
+        }
+    }
+
+    @GetMapping("/delivery")
+    public ResponseEntity<List<DeliveryOrder>> getDeliveryOrders() {
+        List<DeliveryOrder> orders = orderService.findAllDeliveryOrders();
+        if (orders == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(orders);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Integer id) {
         Order order = orderService.findOrderById(id);

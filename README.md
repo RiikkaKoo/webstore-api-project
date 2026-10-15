@@ -1,14 +1,36 @@
 # VERKKOKAUPPA TIETOKANTA & API HARJOITUSTYÖ
 
+**SISÄLTÖ** </br>
+
+- [ALOITUS](#aloitus)
+- [API PÄÄTEPISTEET](#api-päätepisteet)
+- [TIETOKANNAN OMINAISUUDET](#tietokannan-ominaisuudet)
+  - [Indeksit](#indeksit)
+  - [Transkatiot](#transaktiot)
+  - [Näkymät](#näkymät)
+  - [Liipaisimet](#liipaisimet)
+  - [Tapahtumat](#tapahtumat)
+  - [Temporaaliominaisuudet](#temporaaliominaisuudet)
+  - [Tietoturva](#tietoturva)
+
+
 ## ALOITUS
 
 ## API-PÄÄTEPISTEET
 
-
-
-Base URL:
-
+Base URL: </br>
 http://localhost:8090/api
+
+Eri päätepisteet:
+
+- [Asiakkaat (Customers)](#asiakkaat-customers)
+- [Tilaukset (Orders)](#tilaukset-orders)
+- [Tuotteet (Products)](#tuotteet-products)
+- [Kategoriat (Categories)](#kategoriat-categories)
+- [Toimittajat (Suppliers)](#toimittajat-suppliers)
+- [Raportit (Reports)](#raportit-reports)
+
+---
 
 ### Asiakkaat (Customers)
 
@@ -17,7 +39,7 @@ http://localhost:8090/api
 | `GET`    | `/customers`               | Hakee kaikki asiakkaat                                                          |
 | `GET`    | `/customers/{id}`          | Hakee asiakkaan ID:n perusteella                                                |
 | `GET`    | `/customers/email/{email}` | Hakee asiakkaan sähköpostiosoitteen perusteella                                 |
-| `GET`    | `/customers/{id}/address`  | Hakee asiakkaan osoitteet                                                       |
+| `GET`    | `/customers/{id}/address`  | Hakee asiakkaan osoitteen                                                       |
 | `GET`    | `/customers/{id}/orders`   | Hakee asiakkaan tilaukset                                                       |
 | `POST`   | `/customers`               | Lisää uuden asiakkaan                                                           |
 | `POST`   | `/customers/{id}/address`  | Lisää asiakkaalle uuden osoitteen                                               |
@@ -71,6 +93,26 @@ Parametrit
 | Kenttä | Tyyppi | Kuvaus       |
 |--------|--------|--------------|
 | id     | Number | Asiakkaan ID |
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "email": "annaho21@example.org",
+  "first_name": "Joan",
+  "id": 21,
+  "last_name": "Perry",
+  "phone": "514.295.7841x474"
+}
+```
+
+####  **GET** **`/customers/email/{email}`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus                     |
+|--------|--------|----------------------------|
+| email  | String | Asiakkaan sähköpostiosoite |
 
 Onnistunut pyyntö (200) - Esimerkkivastaus:
 
@@ -316,17 +358,19 @@ Onnistunut pyyntö (200) - Esimerkkivastaus:
 ---
 ### Tilaukset (Orders)
 
-| Metodi   | Päätepiste                                | Kuvaus                             |
-|----------|-------------------------------------------|------------------------------------|
-| `GET`    | `/orders`                                 | Hakee kaikki tilaukset             |
-| `GET`    | `/orders/{id}`                            | Hakee tilauksen ID:n perusteella   |
-| `GET`    | `/orders/{id]/items`                      | Hakee tilauksen tuotteet           |
-| `POST`   | `/orders/pickup`                          | Lisää uuden noutotilauksen         |
-| `POST`   | `/orders/delivery`                        | Lisää uuden toimitustilauksen      |
-| `POST`   | `/orders/{id}/items/add`                  | Lisää uuden tuotteen tilaukseen    |
-| `PUT`    | `/orders/pickup/{id}`                     | Päivittää noutotilauksen tiedot    |
-| `PUT`    | `/orders/delivery/{id}`                   | Päivittää toimitustilauksen tiedot |
-| `DELETE` | `/orders/{id}/items/remove/{productId}`   | Poistaa tuotteen tilauksesta       |
+| Metodi   | Päätepiste                              | Kuvaus                             |
+|----------|-----------------------------------------|------------------------------------|
+| `GET`    | `/orders`                               | Hakee kaikki tilaukset             |
+| `GET`    | `/orders/pickup`                        | Hakee kaikki noutotilaukset        |
+| `GET`    | `/orders/delivery`                      | Hakee kaikki toimitustilaukset     |
+| `GET`    | `/orders/{id}`                          | Hakee tilauksen ID:n perusteella   |
+| `GET`    | `/orders/{id]/items`                    | Hakee tilauksen tuotteet           |
+| `POST`   | `/orders/pickup`                        | Lisää uuden noutotilauksen         |
+| `POST`   | `/orders/delivery`                      | Lisää uuden toimitustilauksen      |
+| `POST`   | `/orders/{id}/items/add`                | Lisää uuden tuotteen tilaukseen    |
+| `PUT`    | `/orders/pickup/{id}`                   | Päivittää noutotilauksen tiedot    |
+| `PUT`    | `/orders/delivery/{id}`                 | Päivittää toimitustilauksen tiedot |
+| `DELETE` | `/orders/{id}/items/remove/{productId}` | Poistaa tuotteen tilauksesta       |
 ---
 
 ####  **GET** **`/orders`**
@@ -378,6 +422,117 @@ Onnistunut pyyntö (200) - Esimerkkivastaus:
     },
     "id": 16,
     "order_date": "2025-10-19T08:04:23",
+    "status": "NEW"
+  }
+]
+```
+
+####  **GET** **`/orders/pickup`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "customer": {
+      "email": "tyler5423@example.com",
+      "first_name": "Nathan",
+      "id": 23,
+      "last_name": "Rivera",
+      "phone": "001-764-469-6295x1564"
+    },
+    "final_pickup_date": "2024-07-26",
+    "id": 6,
+    "order_date": "2024-07-12T08:15:54",
+    "pickup_location": "WebStore OY Vantaa",
+    "status": "CANCELLED"
+  },
+  {
+    "customer": {
+      "email": "patricia2241@example.org",
+      "first_name": "Brittany",
+      "id": 41,
+      "last_name": "Hubbard",
+      "phone": "+1-392-890-1611"
+    },
+    "final_pickup_date": "2025-01-27",
+    "id": 7,
+    "order_date": "2024-07-19T06:43:17",
+    "pickup_location": "WebStore OY Stockholm",
+    "status": "NEW"
+  },
+  {
+    "customer": {
+      "email": "solisjohn15@example.net",
+      "first_name": "Christina",
+      "id": 15,
+      "last_name": "Young",
+      "phone": "807-999-7446x417"
+    },
+    "final_pickup_date": "2024-07-24",
+    "id": 8,
+    "order_date": "2024-07-10T16:10:17",
+    "pickup_location": "WebStore OY Vantaa",
+    "status": "NEW"
+  }
+]
+```
+
+####  **GET** **`/orders/delivery`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "delivery_date": "2025-11-14T09:24:17",
+    "street_address": "8845 King Mount",
+    "postal_code": "41053",
+    "city": "Rickyville",
+    "country": "Vietnam",
+    "customer": {
+      "email": "solisjohn15@example.net",
+      "first_name": "Christina",
+      "id": 15,
+      "last_name": "Young",
+      "phone": "807-999-7446x417"
+    },
+    "id": 16,
+    "order_date": "2025-10-19T08:04:23",
+    "status": "NEW"
+  },
+  {
+    "delivery_date": null,
+    "street_address": "21169 Bryan Avenue",
+    "postal_code": "94651",
+    "city": "Port Stevenfort",
+    "country": "Bermuda",
+    "customer": {
+      "email": "awilliams11@example.org",
+      "first_name": "Sandra",
+      "id": 11,
+      "last_name": "Rodriguez",
+      "phone": "+1-719-491-6695x5048"
+    },
+    "id": 17,
+    "order_date": "2024-04-25T18:42:59",
+    "status": "CANCELLED"
+  },
+  {
+    "delivery_date": "2024-11-23T04:18:35",
+    "street_address": "68623 Connor Turnpike Suite 553",
+    "postal_code": "06952",
+    "city": "Deborahville",
+    "country": "Peru",
+    "customer": {
+      "email": "alexanderreed8@example.com",
+      "first_name": "Matthew",
+      "id": 8,
+      "last_name": "Torres",
+      "phone": "001-853-538-4101"
+    },
+    "id": 18,
+    "order_date": "2024-06-10T03:45:51",
     "status": "NEW"
   }
 ]
@@ -1120,6 +1275,894 @@ Onnistunut pyyntö (200) - Esimerkkivastaus:
 | `DELETE` | `/categories/{id}`                | Poistaa tuotekategorian                 |
 ---
 
+####  **GET** **`/categories`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "description": "Sähkölaitteet, komponentit ja elektroniikkatuotteet",
+    "id": 1,
+    "name": "Elektroniikka"
+  },
+  {
+    "description": "Kodin ja arjen tarvikkeet, kodintekstiilit",
+    "id": 2,
+    "name": "Kodin tarvikkeet"
+  },
+  {
+    "description": "Vaatteet ja asusteet aikuisille ja lapsille",
+    "id": 3,
+    "name": "Vaatteet"
+  },
+  {
+    "description": "Ruoka-aineet ja elintarvikkeet",
+    "id": 4,
+    "name": "Elintarvikkeet"
+  },
+  {
+    "description": "Käsityökalut, sähkökoneet ja remointitarvikkeet",
+    "id": 5,
+    "name": "Työkalut"
+  },
+  {
+    "description": "Matkapuhelimet, kuulokkeet ja mobiilitarvikkeet",
+    "id": 6,
+    "name": "Puhelimet & lisävarusteet"
+  },
+  {
+    "description": "Sisustustuotteet ja huonekalut koteihin ja toimistoihin",
+    "id": 7,
+    "name": "Huonekalut"
+  },
+  {
+    "description": "Puutarhan ja pihan tuotteet sekä välineet",
+    "id": 8,
+    "name": "Puutarha & piha"
+  },
+  {
+    "description": "Kirjat, paperitarvikkeet ja toimistotuotteet",
+    "id": 9,
+    "name": "Kirjat & toimisto"
+  },
+  {
+    "description": "Urheiluvälineet, pelit ja vapaa-ajan tuotteet",
+    "id": 10,
+    "name": "Urheilu & vapaa-aika"
+  }
+]
+```
+
+####  **GET** **`/categories/{id}`**
+
+Parametrit
+
+| Kenttä | Tyyppi   | Kuvaus        |
+|--------|----------|---------------|
+| id     | Number   | Kategorian ID |
+
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "description": "Ruoka-aineet ja elintarvikkeet",
+  "id": 4,
+  "name": "Elintarvikkeet"
+}
+```
+
+####  **GET** **`/categories/{id}/products`**
+
+Parametrit
+
+| Kenttä | Tyyppi   | Kuvaus        |
+|--------|----------|---------------|
+| id     | Number   | Kategorian ID |
+
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "active": true,
+    "category": {
+      "description": "Ruoka-aineet ja elintarvikkeet",
+      "id": 4,
+      "name": "Elintarvikkeet"
+    },
+    "description": "Man space low indicate next throw happen per evening.",
+    "id": 16,
+    "name": "Amazing Lamp 880",
+    "price": 979.36,
+    "stock_quantity": 500,
+    "supplier": {
+      "contact_name": "Logan Clark",
+      "email": "logan.clark@arcticsport.ca",
+      "id": 41,
+      "name": "Arctic Sport Inc",
+      "phone": "0456677889"
+    }
+  },
+  {
+    "active": true,
+    "category": {
+      "description": "Ruoka-aineet ja elintarvikkeet",
+      "id": 4,
+      "name": "Elintarvikkeet"
+    },
+    "description": "Soldier by so commercial name there idea make.",
+    "id": 36,
+    "name": "Bold Planet 415",
+    "price": 837.45,
+    "stock_quantity": 448,
+    "supplier": {
+      "contact_name": "Carlos Silva",
+      "email": "carlos.silva@madeiradecor.pt",
+      "id": 58,
+      "name": "MadeiraDecor",
+      "phone": "0512345678"
+    }
+  },
+  {
+    "active": true,
+    "category": {
+      "description": "Ruoka-aineet ja elintarvikkeet",
+      "id": 4,
+      "name": "Elintarvikkeet"
+    },
+    "description": "Effect campaign military whatever effort gas past early range eye throw.",
+    "id": 56,
+    "name": "Green Doodle 484",
+    "price": 237.57,
+    "stock_quantity": 56,
+    "supplier": {
+      "contact_name": "Santiago Costa",
+      "email": "santiago.costa@atlanticsails.pt",
+      "id": 34,
+      "name": "Atlantic Sails",
+      "phone": "0511122334"
+    }
+  }
+]
+```
+
+####  **POST** **`/categories`**
+
+Pyynnön sisältö (RequestBody) - Esimerkki:
+
+```json
+{
+  "name": "Category name",
+  "description": "This is the description for this category"
+}
+```
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "description": "This is the description for this category",
+  "id": 11,
+  "name": "Category name"
+}
+```
+
+####  **PUT** **`/categories/{id}`**
+
+Parametrit
+
+| Kenttä | Tyyppi   | Kuvaus        |
+|--------|----------|---------------|
+| id     | Number   | Kategorian ID |
+
+Pyynnön sisältö (RequestBody) - Esimerkki:
+
+```json
+{
+  "name": "Updated Category name",
+  "description": "This is an updated description for this category"
+}
+```
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "description": "This is an updated description for this category",
+  "id": 11,
+  "name": "Updated Category name"
+}
+```
+
+####  **DELETE** **`/categories/{id}`**
+
+Parametrit
+
+| Kenttä | Tyyppi   | Kuvaus        |
+|--------|----------|---------------|
+| id     | Number   | Kategorian ID |
+
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+"Category with ID 11 was successfully deleted"
+
+
+---
+
+### Toimittajat (Suppliers)
+
+| Metodi   | Päätepiste                 | Kuvaus                                                                          |
+|----------|----------------------------|---------------------------------------------------------------------------------|
+| `GET`    | `/suppliers`               | Hakee kaikki tavarantoimittajat                                                 |
+| `GET`    | `/suppliers/address`       | Hakee kaikkien tavarantoimittajien osoitteet                                    |
+| `GET`    | `/suppliers/{id}`          | Hakee tavarantoimittajan ID:n perusteella                                       |
+| `GET`    | `/suppliers/email/{email}` | Hakee tavarantoimittajan sähköpostiosoitteen perusteella                        |
+| `GET`    | `/suppliers/{id}/address`  | Hakee tavarantoimittajan osoitteen                                              |
+| `POST`   | `/suppliers`               | Lisää uuden asiakkaan                                                           |
+| `POST`   | `/suppliers/{id}/address`  | Lisää asiakkaalle uuden osoitteen                                               |
+| `PUT`    | `/suppliers/{id}`          | Päivittää asiakkaan tiedot                                                      |
+| `PUT`    | `/suppliers/{id}/address`  | Päivittää asiakkaan osoitteen                                                   |
+| `DELETE` | `/suppliers/{id}`          | Muuttaa asiakkaan anonyymiksi, eli piilottaa henkilötiedot ja poistaa osoitteen |
+| `DELETE` | `/suppliers/{id}/address`  | Poistaa asiakkaan osoitteen                                                     |
+
+---
+
+####  **GET** **`/suppliers`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "contact_name": "Mia Manninen",
+    "email": "mia.manninen@polarelec.fi",
+    "id": 1,
+    "name": "Polar Electronics Oy",
+    "phone": "0401001000"
+  },
+  {
+    "contact_name": "Samira Morgan",
+    "email": "samira.morgan@ecotech.com",
+    "id": 2,
+    "name": "EcoTech Ltd",
+    "phone": "0507236312"
+  },
+  {
+    "contact_name": "Joni Mylläri",
+    "email": "joni.myllari@viherpalvelut.fi",
+    "id": 3,
+    "name": "Suomen Viherpalvelut",
+    "phone": "0415317895"
+  },
+  {
+    "contact_name": "Lars Johansen",
+    "email": "lars.johansen@nordicsteel.se",
+    "id": 4,
+    "name": "Nordic Steel AB",
+    "phone": "0405668899"
+  },
+  {
+    "contact_name": "Ling Chen",
+    "email": "ling.chen@globalparts.cn",
+    "id": 5,
+    "name": "Global Parts Asia",
+    "phone": "0800555366"
+  }
+]
+```
+
+####  **GET** **`/suppliers/address`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "supplier": {
+      "contact_name": "Mia Manninen",
+      "email": "mia.manninen@polarelec.fi",
+      "id": 1,
+      "name": "Polar Electronics Oy",
+      "phone": "0401001000"
+    },
+    "street_address": "Kairatie 5",
+    "postal_code": "96400",
+    "city": "Rovaniemi",
+    "country": "Suomi",
+    "id": 1
+  },
+  {
+    "supplier": {
+      "contact_name": "Samira Morgan",
+      "email": "samira.morgan@ecotech.com",
+      "id": 2,
+      "name": "EcoTech Ltd",
+      "phone": "0507236312"
+    },
+    "street_address": "Greenway Ave 22",
+    "postal_code": "E15 4PH",
+    "city": "London",
+    "country": "United Kingdom",
+    "id": 2
+  },
+  {
+    "supplier": {
+      "contact_name": "Joni Mylläri",
+      "email": "joni.myllari@viherpalvelut.fi",
+      "id": 3,
+      "name": "Suomen Viherpalvelut",
+      "phone": "0415317895"
+    },
+    "street_address": "Lehmustie 10",
+    "postal_code": "80100",
+    "city": "Joensuu",
+    "country": "Suomi",
+    "id": 3
+  },
+  {
+    "supplier": {
+      "contact_name": "Lars Johansen",
+      "email": "lars.johansen@nordicsteel.se",
+      "id": 4,
+      "name": "Nordic Steel AB",
+      "phone": "0405668899"
+    },
+    "street_address": "Storgatan 1",
+    "postal_code": "211 41",
+    "city": "Malmö",
+    "country": "Sverige",
+    "id": 4
+  },
+  {
+    "supplier": {
+      "contact_name": "Ling Chen",
+      "email": "ling.chen@globalparts.cn",
+      "id": 5,
+      "name": "Global Parts Asia",
+      "phone": "0800555366"
+    },
+    "street_address": "Qingdao Road 101",
+    "postal_code": "266000",
+    "city": "Qingdao",
+    "country": "China",
+    "id": 5
+  }
+]
+```
+
+####  **GET** **`/suppliers/{id}`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "contact_name": "Mats Karlsson",
+  "email": "mats.karlsson@alandiapharma.ax",
+  "id": 35,
+  "name": "Alandia Pharma",
+  "phone": "0458542541"
+}
+```
+
+####  **GET** **`/suppliers/email/{email}`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus                       |
+|--------|--------|------------------------------|
+| email  | String | Toimittajan sähköpostiosoite |
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "contact_name": "Mats Karlsson",
+  "email": "mats.karlsson@alandiapharma.ax",
+  "id": 35,
+  "name": "Alandia Pharma",
+  "phone": "0458542541"
+}
+```
+
+####  **GET** **`/suppliers/{id}/address`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "supplier": {
+    "contact_name": "Mats Karlsson",
+    "email": "mats.karlsson@alandiapharma.ax",
+    "id": 35,
+    "name": "Alandia Pharma",
+    "phone": "0458542541"
+  },
+  "street_address": "Comercial 89",
+  "postal_code": "03901",
+  "city": "Mexico City",
+  "country": "Mexico",
+  "id": 35
+}
+```
+
+####  **POST** **`/suppliers`**
+
+Pyynnön sisältö (RequestBody) - Esimerkki:
+
+```json
+{
+  "name": "Suppliers Oy",
+  "email": "suppiersoy@email.com",
+  "phone": "02013456789",
+  "contact_name": "Susan Supplier"
+}
+```
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "contact_name": "Susan Supplier",
+  "email": "suppiersoy@email.com",
+  "id": 101,
+  "name": "Suppliers Oy",
+  "phone": "02013456789"
+}
+```
+
+####  **POST** **`/suppliers/{id}/address`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Pyynnön sisältö (RequestBody) - Esimerkki:
+
+```json
+{
+  "street_address": "Streetname 1C",
+  "city": "Cityname",
+  "postal_code": "13131",
+  "country": "Country"
+}
+```
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "supplier": {
+    "contact_name": "Susan Supplier",
+    "email": "newsuppiersoy@email.com",
+    "id": 101,
+    "name": "New Suppliers Oy",
+    "phone": "02013456789"
+  },
+  "street_address": "Streetname 1C",
+  "postal_code": "13131",
+  "city": "Cityname",
+  "country": "Country",
+  "id": 101
+}
+```
+
+####  **PUT** **`/suppliers/{id}`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Pyynnön sisältö (RequestBody) - Esimerkki:
+
+```json
+{
+  "name": "New Suppliers Oy",
+  "email": "newsuppiersoy@email.com",
+  "phone": "02013456789",
+  "contact_name": "Susan Supplier"
+}
+```
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "contact_name": "Susan Supplier",
+  "email": "newsuppiersoy@email.com",
+  "id": 101,
+  "name": "New Suppliers Oy",
+  "phone": "02013456789"
+}
+```
+
+####  **PUT** **`/suppliers/{id}/address`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Pyynnön sisältö (RequestBody) - Esimerkki:
+
+```json
+{
+  "street_address": "Newstreetname 1C",
+  "city": "Newcityname",
+  "postal_code": "13111",
+  "country": "Country"
+}
+```
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "supplier": {
+    "contact_name": "Susan Supplier",
+    "email": "newsuppiersoy@email.com",
+    "id": 101,
+    "name": "New Suppliers Oy",
+    "phone": "02013456789"
+  },
+  "street_address": "Newstreetname 1C",
+  "postal_code": "13111",
+  "city": "Newcityname",
+  "country": "Country",
+  "id": 101
+}
+```
+
+####  **DELETE** **`/suppliers/{id}`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+"Supplier with ID 35 was successfully deleted"
+
+####  **DELETE** **`/suppliers/{id}/address`**
+
+Parametrit
+
+| Kenttä | Tyyppi | Kuvaus         |
+|--------|--------|----------------|
+| id     | Number | Toimittajan ID |
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+"Supplier Address for Supplier with ID 36 was successfully deleted"
+
+---
+
+### Raportit (Reports)
+
+| Metodi   | Päätepiste                         | Kuvaus                                                                                                                                                  |
+|----------|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `GET`    | `/reports/country/sales`           | Hakee raportin, joka näyttää toimitusten lukumäärät ja tuotot maakohtaisesti                                                                            |
+| `GET`    | `/reports/country/{country}/sales` | Hakee raportin, joka näyttää toimitusten lukumäärät ja tuotot annetulle maalle                                                                          |
+| `GET`    | `/reports/dilysales`               | Hakee raportin, joka näyttää päivittäiset tuotot                                                                                                        |
+| `GET`    | `/reports/dilysales`               | Hakee raportin, joka näyttää päivittäiset tuotot                                                                                                        |
+| `GET`    | `/stock/suppliers`                 | Hakee raportin, jossa näkyy tuotteiden varastotiedot ja niiden toimittajien tiedot                                                                      |
+| `GET`    | `/stock/suppliers/{supplierId}`    | Hakee raportin, jossa näkyy annetun toimittajan tiedot ja heidän tuotteidensa varastotiedot                                                             |
+| `GET`    | `/stock/{threshold}/suppliers`     | Hakee raportin, jossa näkyy niiden tuotteiden, <br/> joita on varastossa yhtäpaljon tai alle annettu määrä, varastotiedot ja niiden toimittajien tiedot |
+
+---
+
+####  **GET** **`/reports/country/sales`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "country": "South Africa",
+    "sales": 14328.5,
+    "delivery_orders": 1
+  },
+  {
+    "country": "Equatorial Guinea",
+    "sales": 11423.83,
+    "delivery_orders": 1
+  },
+  {
+    "country": "Liechtenstein",
+    "sales": 10955.97,
+    "delivery_orders": 1
+  },
+  {
+    "country": "Cayman Islands",
+    "sales": 10498.85,
+    "delivery_orders": 1
+  },
+  {
+    "country": "Cuba",
+    "sales": 9203.53,
+    "delivery_orders": 1
+  },
+  {
+    "country": "Zimbabwe",
+    "sales": 9190.28,
+    "delivery_orders": 2
+  },
+  {
+    "country": "Tanzania",
+    "sales": 9108.08,
+    "delivery_orders": 1
+  }
+]
+```
+
+####  **GET** **`/reports/country/{country}/sales`**
+
+Parametrit
+
+| Kenttä  | Tyyppi | Kuvaus            |
+|---------|--------|-------------------|
+| country | String | Maan/valtion nimi |
+
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+{
+  "country": "sweden",
+  "sales": 6946.47,
+  "delivery_orders": 1
+}
+```
+
+####  **GET** **`/reports/dailysales`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "id": 1,
+    "report_date": "2026-10-12",
+    "orders_total": 12,
+    "sales_total": 12570.57
+  },
+  {
+    "id": 2,
+    "report_date": "2026-10-13",
+    "orders_total": 16,
+    "sales_total": 16349.21
+  },
+  {
+    "id": 3,
+    "report_date": "2026-10-14",
+    "orders_total": 8,
+    "sales_total": 8764.93
+  }
+]
+```
+
+####  **GET** **`/reports/stock/suppliers`**
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "product_id": 111,
+    "product_name": "Nifty Kit 939",
+    "stock_quantity": 237,
+    "supplier_id": 1,
+    "supplier": "Polar Electronics Oy",
+    "contact_name": "Mia Manninen",
+    "phone": "0401001000",
+    "email": "mia.manninen@polarelec.fi",
+    "street_address": "Kairatie 5",
+    "city": "Rovaniemi",
+    "country": "Suomi"
+  },
+  {
+    "product_id": 668,
+    "product_name": "Magic Bit 144",
+    "stock_quantity": 180,
+    "supplier_id": 2,
+    "supplier": "EcoTech Ltd",
+    "contact_name": "Samira Morgan",
+    "phone": "0507236312",
+    "email": "samira.morgan@ecotech.com",
+    "street_address": "Greenway Ave 22",
+    "city": "London",
+    "country": "United Kingdom"
+  },
+  {
+    "product_id": 182,
+    "product_name": "Solar Plug 493",
+    "stock_quantity": 304,
+    "supplier_id": 4,
+    "supplier": "Nordic Steel AB",
+    "contact_name": "Lars Johansen",
+    "phone": "0405668899",
+    "email": "lars.johansen@nordicsteel.se",
+    "street_address": "Storgatan 1",
+    "city": "Malmö",
+    "country": "Sverige"
+  },
+  {
+    "product_id": 326,
+    "product_name": "Atomic Gadget 689",
+    "stock_quantity": 425,
+    "supplier_id": 6,
+    "supplier": "Lapland Crafts Ltd",
+    "contact_name": "Sanni Jokela",
+    "phone": "0502101234",
+    "email": "sanni.jokela@laplandcrafts.fi",
+    "street_address": "Lapintie 8",
+    "city": "Rovaniemi",
+    "country": "Suomi"
+  }
+]
+```
+
+####  **GET** **`/reports/stock/suppliers/{supplierId}`**
+
+Parametrit
+
+| Kenttä     | Tyyppi | Kuvaus         |
+|------------|--------|----------------|
+| supplierId | Number | Toimittajan ID |
+
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "product_id": 386,
+    "product_name": "Nimble Bit 743",
+    "stock_quantity": 326,
+    "supplier_id": 15,
+    "supplier": "GadgetZone",
+    "contact_name": "Jessica Turner",
+    "phone": "0415947221",
+    "email": "jessica.turner@gadgetzone.us",
+    "street_address": "Broadway 250",
+    "city": "New York",
+    "country": "USA"
+  },
+  {
+    "product_id": 578,
+    "product_name": "Super Clip 551",
+    "stock_quantity": 23,
+    "supplier_id": 15,
+    "supplier": "GadgetZone",
+    "contact_name": "Jessica Turner",
+    "phone": "0415947221",
+    "email": "jessica.turner@gadgetzone.us",
+    "street_address": "Broadway 250",
+    "city": "New York",
+    "country": "USA"
+  },
+  {
+    "product_id": 613,
+    "product_name": "Prime Frame 132",
+    "stock_quantity": 329,
+    "supplier_id": 15,
+    "supplier": "GadgetZone",
+    "contact_name": "Jessica Turner",
+    "phone": "0415947221",
+    "email": "jessica.turner@gadgetzone.us",
+    "street_address": "Broadway 250",
+    "city": "New York",
+    "country": "USA"
+  },
+  {
+    "product_id": 691,
+    "product_name": "Chic Rocket 492",
+    "stock_quantity": 281,
+    "supplier_id": 15,
+    "supplier": "GadgetZone",
+    "contact_name": "Jessica Turner",
+    "phone": "0415947221",
+    "email": "jessica.turner@gadgetzone.us",
+    "street_address": "Broadway 250",
+    "city": "New York",
+    "country": "USA"
+  }
+]
+```
+
+####  **GET** **`/reports/stock/{threshold}/suppliers`**
+
+Parametrit
+
+| Kenttä     | Tyyppi  | Kuvaus                          |
+|------------|---------|---------------------------------|
+| threshold  | Number  | Tavaroiden kapplamäärän yläraja |
+
+
+Onnistunut pyyntö (200) - Esimerkkivastaus:
+
+```json
+[
+  {
+    "product_id": 29,
+    "product_name": "Amazing Blob 125",
+    "stock_quantity": 3,
+    "supplier_id": 7,
+    "supplier": "Red Maple Supplies",
+    "contact_name": "Daniel Cooper",
+    "phone": "0445879630",
+    "email": "daniel.cooper@redmaple.ca",
+    "street_address": "Maple Street 587",
+    "city": "Toronto",
+    "country": "Canada"
+  },
+  {
+    "product_id": 702,
+    "product_name": "Green Station 670",
+    "stock_quantity": 1,
+    "supplier_id": 18,
+    "supplier": "Nippon Supplies",
+    "contact_name": "Hiroshi Tanaka",
+    "phone": "0708462179",
+    "email": "hiroshi.tanaka@nipponsupplies.jp",
+    "street_address": "Chuo Dori 1-4",
+    "city": "Tokyo",
+    "country": "Japan"
+  },
+  {
+    "product_id": 656,
+    "product_name": "Flex Plug 168",
+    "stock_quantity": 5,
+    "supplier_id": 22,
+    "supplier": "Järvi Fisheries",
+    "contact_name": "Paavo Moilanen",
+    "phone": "0505324421",
+    "email": "paavo.moilanen@jarvifisheries.fi",
+    "street_address": "Kalasatamantie 2",
+    "city": "Helsinki",
+    "country": "Suomi"
+  },
+  {
+    "product_id": 852,
+    "product_name": "Lucky Handle 263",
+    "stock_quantity": 2,
+    "supplier_id": 40,
+    "supplier": "Veisto Partners",
+    "contact_name": "Henrik Rossi",
+    "phone": "0412200099",
+    "email": "henrik.rossi@veistopartners.fi",
+    "street_address": "Narva mnt 5",
+    "city": "Tallinn",
+    "country": "Estonia"
+  }
+]
+```
+
+
+---
+
 ## TIETOKANNAN OMINAISUUDET
 
 ### Indeksit
@@ -1161,8 +2204,8 @@ näkymät ovat joko koostetietoa ja/tai ne on luotu useamman taulun tiedoista, m
 Tietokantaan on toteutettu seuraavat näkymät:
 
 - **orders_stats**
-  - Kerää yhteen koostetietoa delivery_orders-, customeraddresses- ja orderitems-tauluista.
-  - Laskee kaikkien tilausten lukumäärät ja tuotot maakohtaisesti. Mukaan ei lasketa peruutettuja tilauksia.
+  - Kerää yhteen koostetietoa delivery_orders-, orderitems- ja order-tauluista.
+  - Laskee kaikkien toimitustilausten lukumäärät ja tuotot maakohtaisesti. Mukaan ei lasketa peruutettuja tilauksia.
   - Näkymästä haetaan tiedot raportteja varten. Raportin voi nähdä oman päätepisteen kautta.
 
 - **order_items**

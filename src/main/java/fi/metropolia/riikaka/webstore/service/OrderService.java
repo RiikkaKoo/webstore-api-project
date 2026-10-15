@@ -39,6 +39,24 @@ public class OrderService {
         }
     }
 
+    public List<PickUpOrder> findAllPickupOrders() {
+        List<PickUpOrder> orders = pickupOrderRepository.findAll();
+        if (orders.isEmpty()) {
+            return null;
+        } else {
+            return orders;
+        }
+    }
+
+    public List<DeliveryOrder> findAllDeliveryOrders() {
+        List<DeliveryOrder> orders = deliveryOrderRepository.findAll();
+        if (orders.isEmpty()) {
+            return null;
+        } else {
+            return orders;
+        }
+    }
+
     public Order findOrderById(int id) {
         if (orderRepository.findById(id).isEmpty()) {
             return null;

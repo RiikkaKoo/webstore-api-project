@@ -49,7 +49,7 @@ public class SupplierController {
         }
     }
 
-    @GetMapping("/addresses")
+    @GetMapping("/address")
     public ResponseEntity<List<SupplierAddress>> getSupplierAddresses(){
         List<SupplierAddress> addresses = supplierService.findSupplierAddresses();
         if (addresses == null) {
